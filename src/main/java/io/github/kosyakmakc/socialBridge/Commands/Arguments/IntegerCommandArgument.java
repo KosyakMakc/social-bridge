@@ -31,7 +31,7 @@ class IntegerCommandArgument extends CommandArgument<Integer> {
     @Override
     public Integer getValue(StringReader args) throws ArgumentFormatException {
         var wordWriter = new StringWriter();
-        var charCode = -1;
+        int charCode;
 
         try {
             while ((charCode = args.read()) != -1) {

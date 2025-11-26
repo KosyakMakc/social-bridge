@@ -31,7 +31,7 @@ class DoubleCommandArgument extends CommandArgument<Double> {
     @Override
     public Double getValue(StringReader args) throws ArgumentFormatException {
         var wordWriter = new StringWriter();
-        var charCode = -1;
+        int charCode;
 
         try {
             while ((charCode = args.read()) != -1) {

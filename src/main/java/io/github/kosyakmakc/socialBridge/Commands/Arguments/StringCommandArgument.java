@@ -33,7 +33,7 @@ class StringCommandArgument extends CommandArgument<String> {
     @Override
     public String getValue(StringReader args) throws ArgumentFormatException {
         var wordWriter = new StringWriter();
-        var charCode = -1;
+        int charCode;
         var prevCharCode = -1;
 
         try {

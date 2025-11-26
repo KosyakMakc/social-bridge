@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class SocialBridge implements ISocialBridge {
 
@@ -66,7 +67,7 @@ public class SocialBridge implements ISocialBridge {
         getLogger().info("Minecraft commands(" + totalMcCommands + "):");
         for (var module : getModules()) {
             for (var mcCommand : module.getMinecraftCommands()) {
-                getLogger().info("\t\t/" + module.getName() + ' ' + mcCommand.getLiteral());
+                getLogger().info("\t\t/" + module.getName() + ' ' + mcCommand.getLiteral() + ' ' + mcCommand.getArgumentDefinitions().stream().map(x -> '{' + x.getName() + '}').collect(Collectors.joining(" ")));
                 mcCommand.init(this);
             }
         }
@@ -74,7 +75,7 @@ public class SocialBridge implements ISocialBridge {
         getLogger().info("Social commands(" + totalSocialCommands + "):");
         for (var module : getModules()) {
             for (var socialCommand : module.getSocialCommands()) {
-                getLogger().info("\t\t/" + module.getName() + '-' + socialCommand.getLiteral());
+                getLogger().info("\t\t/" + module.getName() + '-' + socialCommand.getLiteral() + ' ' + socialCommand.getArgumentDefinitions().stream().map(x -> '{' + x.getName() + '}').collect(Collectors.joining(" ")));
                 socialCommand.init(this);
             }
         }

@@ -1,9 +1,12 @@
 package io.github.kosyakmakc.socialBridge.paper;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.*;
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
+import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
@@ -64,59 +67,72 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
                     continue;
                 }
 
-                var commandsBuilder = Commands.literal(module.getName());
+                var rootLiteral = Commands.literal(module.getName());
 
                 for(var bridgeCommand : mcCommands) {
-                    getLogger().log(Level.FINE, "Registering command - /"
-                    + module.getName() + ' '
-                    + bridgeCommand.getLiteral() + ' '
-                    + bridgeCommand.getArgumentDefinitions().stream().map(x -> '{' + x.getName() + '}').collect(Collectors.joining(" ")));
-                    
-                    var cmd = Commands
-                            .literal(bridgeCommand.getLiteral())
-                            .requires(sender -> sender.getSender().hasPermission(bridgeCommand.getPermission()));
-                    for (var argument : bridgeCommand.getArgumentDefinitions()) {
-                        var argumentNode = BuildArgumentNode(argument);
+                    var handler = HandleCommand(bridgeCommand);
 
-                        cmd = cmd.then(argumentNode);
+                    var cmd = Commands
+                                .literal(bridgeCommand.getLiteral())
+                                .executes(handler);
+                    
+                    var permission = bridgeCommand.getPermission();
+                    if (!permission.isEmpty()) {
+                        cmd.requires(sender -> sender.getSender().hasPermission(bridgeCommand.getPermission()));
                     }
 
-                    cmd.executes(ctx -> {
-                        getLogger().log(Level.FINE, "Command executed");
-                        var sender = ctx.getSource().getSender();
+                    // Registering singleton handler on all command phase, bridge-command will be can handle invalid calls and then notice user
+                    RequiredArgumentBuilder<CommandSourceStack, ?> prev = null;
+                    for (var argument : bridgeCommand.getArgumentDefinitions()) {
+                        var argumentNode = BuildArgumentNode(argument).executes(handler);
 
-                        var mcPlatformUser = sender instanceof Player player ? new BukkitMinecraftUser(player) : null;
-                        try {
-                            var args = ctx.getInput();
-                            var reader = new StringReader(args);
-
-                            // pumping "/{moduleSuffix}" in reader
-                            systemWordArgument.getValue(reader);
-
-                            // pumping {commandLiteral} in reader
-                            systemWordArgument.getValue(reader);
-
-                            bridgeCommand.handle(mcPlatformUser, reader);
-                        } catch (ArgumentFormatException e) {
-                            if (mcPlatformUser != null) {
-                                mcPlatformUser.sendMessage(authBridge.getLocalizationService().getMessage(mcPlatformUser.getLocale(), e.getMessageKey()), new HashMap<>());
-                            }
-                            else {
-                                getLogger().warning(authBridge.getLocalizationService().getMessage(LocalizationService.defaultLocale, e.getMessageKey()));
-                            }
+                        if (prev == null) {
+                            cmd.then(argumentNode);
                         }
-                        return SINGLE_SUCCESS;
-                    });
+                        else {
+                            prev.then(argumentNode);
+                        }
 
-                    commandsBuilder.then(cmd);
+                        prev = argumentNode;
+                    }
+
+                    rootLiteral.then(cmd);
                 }
-                commands.registrar().register(commandsBuilder.build());
+                commands.registrar().register(rootLiteral.build());
             }
         });
     }
 
+    private Command<CommandSourceStack> HandleCommand(IMinecraftCommand bridgeCommand) {
+        return ctx -> {
+            var sender = ctx.getSource().getSender();
+
+            var mcPlatformUser = sender instanceof Player player ? new BukkitMinecraftUser(player) : null;
+            try {
+                var args = ctx.getInput();
+                var reader = new StringReader(args);
+
+                // pumping "/{moduleSuffix}" in reader
+                systemWordArgument.getValue(reader);
+
+                // pumping {commandLiteral} in reader
+                systemWordArgument.getValue(reader);
+
+                bridgeCommand.handle(mcPlatformUser, reader);
+            } catch (ArgumentFormatException e) {
+                if (mcPlatformUser != null) {
+                    mcPlatformUser.sendMessage(authBridge.getLocalizationService().getMessage(mcPlatformUser.getLocale(), e.getMessageKey()), new HashMap<>());
+                }
+                else {
+                    getLogger().warning(authBridge.getLocalizationService().getMessage(LocalizationService.defaultLocale, e.getMessageKey()));
+                }
+            }
+            return SINGLE_SUCCESS;
+        };
+    }
+
     @SuppressWarnings("rawtypes")
-    private ArgumentBuilder<CommandSourceStack, ?> BuildArgumentNode(CommandArgument argument) {
+    private RequiredArgumentBuilder<CommandSourceStack, ?> BuildArgumentNode(CommandArgument argument) {
         var commandName = argument.getName();
         var dataType = argument.getDataType();
 

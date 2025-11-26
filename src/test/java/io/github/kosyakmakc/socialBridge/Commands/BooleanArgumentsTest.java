@@ -5,7 +5,7 @@ import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.MinecraftCommandBase;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.NullMinecraftPlatform;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -48,7 +48,7 @@ public class BooleanArgumentsTest {
             }
         }
 
-        NullMinecraftPlatform.Init();
+        HeadlessMinecraftPlatform.Init();
         try {
             var command = new simpleBooleanCommand(answer);
             command.init(SocialBridge.INSTANCE);

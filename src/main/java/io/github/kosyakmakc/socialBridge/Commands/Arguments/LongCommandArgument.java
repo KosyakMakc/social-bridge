@@ -31,7 +31,7 @@ class LongCommandArgument extends CommandArgument<Long> {
     @Override
     public Long getValue(StringReader args) throws ArgumentFormatException {
         var wordWriter = new StringWriter();
-        var charCode = -1;
+        int charCode;
 
         try {
             while ((charCode = args.read()) != -1) {
