@@ -45,14 +45,14 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
     @Override
     public CompletableFuture<Void> enable(IBridgeModule module) {
-        this.bridge = module.getBridge();
+        bridge = module.getBridge();
         logger = Logger.getLogger(bridge.getLogger().getName() + '.' + module.getName() + '.' + getLiteral());
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> disable() {
-        this.bridge = null;
+        bridge = null;
         logger = null;
         return CompletableFuture.completedFuture(null);
     }
