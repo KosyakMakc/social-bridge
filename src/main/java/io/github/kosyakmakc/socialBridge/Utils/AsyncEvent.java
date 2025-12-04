@@ -16,16 +16,19 @@ public class AsyncEvent<T> {
         handlers.remove(handler);
     }
 
-    public void invoke(T event) {
-        for (Consumer<T> consumer : handlers) {
-            CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Void> invoke(T event) {
+        return CompletableFuture.allOf(
+            handlers
+            .stream()
+            .map(consumer -> CompletableFuture.runAsync(() -> {
                 try {
                     consumer.accept(event);
                 }
                 catch (Exception err) {
                     err.printStackTrace();
                 }
-            });
-        }
+            }))
+            .toArray(CompletableFuture[]::new)
+        );
     }
 }

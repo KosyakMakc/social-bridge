@@ -77,6 +77,7 @@ public class SocialBridge implements ISocialBridge {
         return socialPlatforms.values();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends ISocialPlatform> T getSocialPlatform(Class<T> tClass) {
         var platform = socialPlatforms.getOrDefault(tClass, null);
@@ -119,8 +120,8 @@ public class SocialBridge implements ISocialBridge {
                     socialPlatforms.put(socialPlatform.getClass(), socialPlatform);
                 })
                 .thenCompose(Void -> connectModulesToSocialPlatorm(socialPlatform))
+                .thenCompose(Void -> events.socialPlatformConnect.invoke(socialPlatform))
                 .thenApply(Void -> {
-                    events.socialPlatformConnect.invoke(socialPlatform);
                     logger.info("social platform '" + socialPlatform.getPlatformName() + "' connected");
                     return true;
                 });
@@ -154,8 +155,8 @@ public class SocialBridge implements ISocialBridge {
         if (socialPlatforms.remove(socialPlatform.getClass(), socialPlatform)) {
             return socialPlatform
                 .disable()
+                .thenCompose(Void -> events.socialPlatformDisconnect.invoke(socialPlatform))
                 .thenRun(() -> {
-                    events.socialPlatformDisconnect.invoke(socialPlatform);
                     logger.info("social platform '" + socialPlatform.getPlatformName() + "' disconnected");
                 });
         }
@@ -186,9 +187,9 @@ public class SocialBridge implements ISocialBridge {
                 .thenCompose(Void -> connectMinecraftCommands(module))
                 .thenCompose(Void -> connectModuleToMinecraftPlatform(module))
                 .thenCompose(Void -> connectModuleToSocialPlatforms(module))
+                .thenCompose(Void -> events.moduleConnect.invoke(module))
                 .thenApply(Void -> {
                     bridgeModules.put(module.getClass(), module);
-                    events.moduleConnect.invoke(module);
                     logger.info("module '" + module.getName() + "' connected");
                     return true;
                 });
@@ -260,8 +261,8 @@ public class SocialBridge implements ISocialBridge {
                 .thenCompose(Void -> disconnectMinecraftCommands(module))
                 .thenCompose(Void -> disconnectSocialCommands(module))
                 .thenApply(Void -> module.disable())
+                .thenCompose(Void -> events.moduleDisconnect.invoke(module))
                 .thenRun(() -> {
-                    events.moduleDisconnect.invoke(module);
                     logger.info("module '" + module.getName() + "' disconnected");
                 });
         }
@@ -326,6 +327,7 @@ public class SocialBridge implements ISocialBridge {
         return bridgeModules.values();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends IBridgeModule> T getModule(Class<T> tClass) {
         var module = bridgeModules.getOrDefault(tClass, null);
