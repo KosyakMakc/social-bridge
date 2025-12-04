@@ -12,7 +12,7 @@ public class SimpleGreedyStringCommand extends SocialCommandBase {
     private String answer;
     
     public SimpleGreedyStringCommand() {
-        super("single argument", List.of(CommandArgument.ofGreedyString("single argument")));
+        super("GreedyStringTest", List.of(CommandArgument.ofGreedyString("single argument")));
     }
     
     public void prepareAnswer(String answer) {

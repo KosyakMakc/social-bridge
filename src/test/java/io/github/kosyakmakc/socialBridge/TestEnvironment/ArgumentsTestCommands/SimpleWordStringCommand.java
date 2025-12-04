@@ -12,7 +12,7 @@ public class SimpleWordStringCommand extends SocialCommandBase {
     private String answer;
     
     public SimpleWordStringCommand() {
-        super("single argument", List.of(CommandArgument.ofWord("single argument")));
+        super("SimpleWordTest", List.of(CommandArgument.ofWord("single argument")));
     }
     
     public void prepareAnswer(String answer) {

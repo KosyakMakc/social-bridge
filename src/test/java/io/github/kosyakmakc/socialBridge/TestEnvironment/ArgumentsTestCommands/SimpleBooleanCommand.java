@@ -12,7 +12,7 @@ public class SimpleBooleanCommand extends SocialCommandBase {
     private boolean answer;
 
     public SimpleBooleanCommand() {
-        super("single argument", List.of(CommandArgument.ofBoolean("single argument")));
+        super("BooleanTest", List.of(CommandArgument.ofBoolean("single argument")));
     }
 
     public void prepareAnswer(boolean answer) {

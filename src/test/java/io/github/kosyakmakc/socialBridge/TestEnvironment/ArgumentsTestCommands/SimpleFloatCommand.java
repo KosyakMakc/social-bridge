@@ -12,7 +12,7 @@ public class SimpleFloatCommand extends SocialCommandBase {
     private float answer;
     
     public SimpleFloatCommand() {
-        super("single argument", List.of(CommandArgument.ofFloat("single argument")));
+        super("FloatTest", List.of(CommandArgument.ofFloat("single argument")));
     }
     
     public void prepareAnswer(float answer) {

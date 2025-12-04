@@ -13,7 +13,7 @@ public class SimpleIntegerCommand extends SocialCommandBase {
     private int answer;
     
     public SimpleIntegerCommand() {
-        super("single argument", List.of(CommandArgument.ofInteger("single argument")));
+        super("IntegerTest", List.of(CommandArgument.ofInteger("single argument")));
     }
     
     public void prepareAnswer(int answer) {
