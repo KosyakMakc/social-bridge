@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public interface IMinecraftPlatform extends IConfigurationService {
+public interface IMinecraftPlatform extends IConfigurationService, IModuleLoader {
     java.nio.file.Path getDataDirectory() throws IOException;
     Version getSocialBridgeVersion();
 

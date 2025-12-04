@@ -35,16 +35,21 @@ public class SocialBridge implements ISocialBridge {
         minecraftPlatform = mcPlatform;
         socialPlatforms = new HashMap<>();
         bridgeModules = new HashMap<>();
-
-        var connectionString = mcPlatform.get("connectionString", null).join();
+        
+            
+        var defaultModule = new DefaultModule(mcPlatform);
+        
+        var connectionString = mcPlatform.get(defaultModule, "connectionString", null).join();
         if (connectionString == null) {
             throw new RuntimeException("failed connect to database, check connectionString in config");
         }
         databaseContext = new DatabaseContext(this, new JdbcConnectionSource(connectionString));
-
+        
         configurationService = new ConfigurationService(this);
         localizationService = new LocalizationService(this);
         new ApplyDatabaseMigrations().accept(this);
+
+        this.connectModule(defaultModule).join();
     }
 
     @Override

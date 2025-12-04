@@ -12,7 +12,6 @@ import io.github.kosyakmakc.socialBridge.DefaultModule;
 import io.github.kosyakmakc.socialBridge.IBridgeModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
-import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IModuleLoader;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
@@ -36,7 +35,7 @@ import java.util.logging.Logger;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
-public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatform, IModuleLoader {
+public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatform {
     private static final CommandArgument<String> systemWordArgument = CommandArgument.ofWord("/{pluginSuffix} {commandLiteral} [arguments, ...]");
 
     private final Version socialBridgVersion;
@@ -47,8 +46,6 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
             socialBridgVersion = new Version(this.getPluginMeta().getVersion());
             SocialBridge.Init(this);
             socialBridge = SocialBridge.INSTANCE;
-            
-            socialBridge.connectModule(new DefaultModule(this));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -233,9 +230,8 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
     }
 
     @Override
-    public CompletableFuture<String> get(String parameter, String defaultValue) {
+    public CompletableFuture<String> get(IBridgeModule module, String parameter, String defaultValue) {
         return CompletableFuture.supplyAsync(() -> {
-
             if (Objects.equals(parameter, "connectionString")) {
                 try {
                     return "jdbc:sqlite:" + Path.of(getDataDirectory().toAbsolutePath().toString(), "social-bridge.sqlite");
@@ -243,15 +239,31 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
                     throw new RuntimeException(e);
                 }
             }
-            return this.getConfig().getString(parameter, defaultValue);
+
+            var config = this.getConfig();
+
+            var moduleSection = config.getConfigurationSection(module.getName());
+            if (moduleSection == null) {
+                return defaultValue;
+            }
+
+            return moduleSection.getString(parameter, defaultValue);
         });
     }
 
     @Override
-    public CompletableFuture<Boolean> set(String parameter, String value) {
+    public CompletableFuture<Boolean> set(IBridgeModule module, String parameter, String value) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                this.getConfig().set(parameter, value);
+                var config = this.getConfig();
+
+                var moduleSection = config.getConfigurationSection(module.getName());
+                if (moduleSection == null) {
+                    moduleSection = config.createSection(module.getName());
+                }
+
+                moduleSection.set(parameter, value);
+
                 getLogger().info("plugin configuration change: " + parameter + "=" + value);
                 return true;
             }

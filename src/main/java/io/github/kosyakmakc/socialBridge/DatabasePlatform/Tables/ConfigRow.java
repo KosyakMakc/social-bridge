@@ -3,21 +3,37 @@ package io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "config")
+@DatabaseTable(tableName = ConfigRow.TABLE_NAME)
 public class ConfigRow implements IDatabaseTable {
-    @DatabaseField(columnName = "parameter", id = true)
+    public static final String TABLE_NAME = "config";
+
+    public static final String MODULE_FIELD_NAME = "id";
+    public static final String PARAMETER_FIELD_NAME = "parameter";
+    public static final String VALUE_FIELD_NAME = "value";
+
+    public static final String FULL_KEY_INDEX_NAME = "full_key_idx";
+
+    @DatabaseField(columnName = MODULE_FIELD_NAME, uniqueIndexName = FULL_KEY_INDEX_NAME)
+    private String module;
+
+    @DatabaseField(columnName = PARAMETER_FIELD_NAME, uniqueIndexName = FULL_KEY_INDEX_NAME)
     private String parameter;
 
-    @DatabaseField(columnName = "value")
+    @DatabaseField(columnName = VALUE_FIELD_NAME)
     private String value;
 
     public ConfigRow() {
 
     }
 
-    public ConfigRow(String parameter, String value) {
+    public ConfigRow(String module, String parameter, String value) {
+        this.module = module;
         this.parameter = parameter;
         this.value = value;
+    }
+
+    public String getModule() {
+        return module;
     }
 
     public String getParameter() {
