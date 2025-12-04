@@ -198,8 +198,8 @@ public class SocialBridge implements ISocialBridge {
                     }
                 })
                 .thenCompose(Void -> localizationService.restoreLocalizationsOfModule(module))
-                .thenCompose(Void -> connectSocialCommands(module))
-                .thenCompose(Void -> connectMinecraftCommands(module))
+                .thenCompose(Void -> enableSocialCommands(module))
+                .thenCompose(Void -> enableMinecraftCommands(module))
                 .thenCompose(Void -> connectModuleToMinecraftPlatform(module))
                 .thenCompose(Void -> connectModuleToSocialPlatforms(module))
                 .thenCompose(Void -> events.moduleConnect.invoke(module))
@@ -241,20 +241,20 @@ public class SocialBridge implements ISocialBridge {
         var name = module.getName();
         var matcher1 = moduleNameValidation.matcher(name);
         if (matcher1.find()) {
-            throw new RuntimeException("Invalid module name, please don't use whitespaces, escape symbol, dash symbol and quotas");
+            throw new RuntimeException("Invalid module name, please don't use whitespaces, escape symbol, dash symbol, dot symbol and quotas");
         }
 
         for (var socialCommand : module.getSocialCommands()) {
             var matcher2 = socialCommandNameValidation.matcher(socialCommand.getLiteral());
             if (matcher2.find()) {
-                throw new RuntimeException("Invalid social command name, please don't use whitespaces, escape symbol, dash symbol and quotas");
+                throw new RuntimeException("Invalid social command name, please don't use whitespaces, escape symbol, dash symbol, dot symbol and quotas");
             }
         }
 
         for (var minecraftCommand : module.getMinecraftCommands()) {
             var matcher3 = minecraftCommandNameValidation.matcher(minecraftCommand.getLiteral());
             if (matcher3.find()) {
-                throw new RuntimeException("Invalid social command name, please don't use whitespaces, escape symbol and quotas");
+                throw new RuntimeException("Invalid social command name, please don't use whitespaces, escape symbol, dot symbol and quotas");
             }
         }
 
@@ -292,7 +292,7 @@ public class SocialBridge implements ISocialBridge {
         return minecraftPlatform.connectModule(module);
     }
 
-    private CompletableFuture<Void> connectMinecraftCommands(IBridgeModule module) {
+    private CompletableFuture<Void> enableMinecraftCommands(IBridgeModule module) {
         return CompletableFuture.allOf(
             module
                 .getMinecraftCommands()
@@ -308,7 +308,7 @@ public class SocialBridge implements ISocialBridge {
                 .toArray(CompletableFuture[]::new));
     }
 
-    private CompletableFuture<Void> connectSocialCommands(IBridgeModule module) {
+    private CompletableFuture<Void> enableSocialCommands(IBridgeModule module) {
         return CompletableFuture.allOf(
             module
                 .getSocialCommands()
@@ -331,8 +331,8 @@ public class SocialBridge implements ISocialBridge {
 
         if (bridgeModules.remove(module.getClass(), module)) {
             return disconnectModuleFromSocialPlatforms(module)
-                .thenCompose(Void -> disconnectMinecraftCommands(module))
-                .thenCompose(Void -> disconnectSocialCommands(module))
+                .thenCompose(Void -> disableMinecraftCommands(module))
+                .thenCompose(Void -> disableSocialCommands(module))
                 .thenApply(Void -> module.disable())
                 .thenCompose(Void -> events.moduleDisconnect.invoke(module))
                 .thenRun(() -> {
@@ -345,7 +345,7 @@ public class SocialBridge implements ISocialBridge {
         }
     }
 
-    private CompletableFuture<Void> disconnectSocialCommands(IBridgeModule module) {
+    private CompletableFuture<Void> disableSocialCommands(IBridgeModule module) {
         return CompletableFuture.allOf(
             module
                 .getSocialCommands()
@@ -361,7 +361,7 @@ public class SocialBridge implements ISocialBridge {
                 .toArray(CompletableFuture[]::new));
     }
 
-    private CompletableFuture<Void> disconnectMinecraftCommands(IBridgeModule module) {
+    private CompletableFuture<Void> disableMinecraftCommands(IBridgeModule module) {
         return CompletableFuture.allOf(
             module
                 .getMinecraftCommands()
