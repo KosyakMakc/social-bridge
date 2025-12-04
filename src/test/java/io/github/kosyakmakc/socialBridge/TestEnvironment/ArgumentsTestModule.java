@@ -1,0 +1,144 @@
+package io.github.kosyakmakc.socialBridge.TestEnvironment;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import io.github.kosyakmakc.socialBridge.IBridgeModule;
+import io.github.kosyakmakc.socialBridge.ISocialBridge;
+import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
+import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.ISocialCommand;
+import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.ITranslationSource;
+import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IModuleLoader;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleBooleanCommand;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleFloatCommand;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleGreedyStringCommand;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleIntegerCommand;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleWordStringCommand;
+import io.github.kosyakmakc.socialBridge.Utils.Version;
+
+public class ArgumentsTestModule implements IBridgeModule {
+    public static final UUID MODULE_ID = UUID.fromString("e5912fb7-7801-498c-9c1e-2bed98653ea3");
+
+    private final String name = "ArgumentsTest";
+    @SuppressWarnings("rawtypes")
+    private final HashMap<Class, ISocialCommand> socialCommands = new HashMap<>();
+    @SuppressWarnings("rawtypes")
+    private final HashMap<Class, IMinecraftCommand> minecraftCommands = new HashMap<>();
+    @SuppressWarnings("rawtypes")
+    private final HashMap<Class, ITranslationSource> translations = new HashMap<>();
+    private ISocialBridge bridge;
+
+    public ArgumentsTestModule() {
+        addSocialCommand(new SimpleBooleanCommand());
+        addSocialCommand(new SimpleFloatCommand());
+        addSocialCommand(new SimpleGreedyStringCommand());
+        addSocialCommand(new SimpleIntegerCommand());
+        addSocialCommand(new SimpleWordStringCommand());
+    }
+
+    @Override
+    public Version getCompabilityVersion() {
+        return HeadlessMinecraftPlatform.VERSION;
+    }
+
+    @Override
+    public CompletableFuture<Boolean> enable(ISocialBridge bridge) {
+        this.bridge = bridge;
+        return CompletableFuture.completedFuture(true);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> disable() {
+        this.bridge = null;
+        return CompletableFuture.completedFuture(true);
+    }
+
+    @Override
+    public ISocialBridge getBridge() {
+        return bridge;
+    }
+
+    @Override
+    public Collection<ISocialCommand> getSocialCommands() {
+        return socialCommands.values();
+    }
+
+    public void addSocialCommand(ISocialCommand socialCommand) {
+        if (this.bridge != null) {
+            throw new RuntimeException("TempModule already enabled and connected to SocialBridge, adding items disallowed now");
+        }
+        socialCommands.put(socialCommand.getClass(), socialCommand);
+    }
+
+    public <T extends ISocialCommand> T getSocialCommand(Class<T> tClass) {
+        var socialCommand = socialCommands.getOrDefault(tClass, null);
+        if (socialCommand != null) {
+            return (T) socialCommand;
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
+    public Collection<IMinecraftCommand> getMinecraftCommands() {
+        return minecraftCommands.values();
+    }
+
+    public void addMinecraftCommand(IMinecraftCommand minecraftCommand) {
+        if (this.bridge != null) {
+            throw new RuntimeException("TempModule already enabled and connected to SocialBridge, adding items disallowed now");
+        }
+        minecraftCommands.put(minecraftCommand.getClass(), minecraftCommand);
+    }
+
+    public <T extends IMinecraftCommand> T getMinecraftCommand(Class<T> tClass) {
+        var minecraftCommand = minecraftCommands.getOrDefault(tClass, null);
+        if (minecraftCommand != null) {
+            return (T) minecraftCommand;
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
+    public Collection<ITranslationSource> getTranslations() {
+        return translations.values();
+    }
+
+    public void addTranslation(ITranslationSource translationSource) {
+        if (this.bridge != null) {
+            throw new RuntimeException("TempModule already enabled and connected to SocialBridge, adding items disallowed now");
+        }
+        translations.put(translationSource.getClass(), translationSource);
+    }
+
+    public <T extends ITranslationSource> T getTranslation(Class<T> tClass) {
+        var translationSource = translations.getOrDefault(tClass, null);
+        if (translationSource != null) {
+            return (T) translationSource;
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
+    public IModuleLoader getLoader() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public UUID getId() {
+        return MODULE_ID;
+    }
+
+}

@@ -13,7 +13,12 @@ import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DatabaseContext {
     public Dao<ConfigRow, String> configurations;
@@ -22,16 +27,18 @@ public class DatabaseContext {
     @SuppressWarnings("rawtypes")
     private final HashMap<Class, Dao> extensionTables = new HashMap<>();
 
-    private final ISocialBridge bridge;
     private final ConnectionSource connectionSource;
     private final TransactionManager transactionManager;
+    private final Logger logger;
+
+    private final Executor singleExecutor = Executors.newSingleThreadExecutor();
 
     public DatabaseContext(ISocialBridge bridge, JdbcConnectionSource connectionSource) throws SQLException {
-        this.bridge = bridge;
-        var logger = bridge.getLogger();
-        logger.info(connectionSource.getUrl());
+        logger = Logger.getLogger(bridge.getLogger().getName() + '.' + DatabaseContext.class.getSimpleName());
 
-        logger.info("DatabasePlatform starts...");
+        logger.info(connectionSource.getUrl());
+        logger.info("database inits...");
+
         this.connectionSource = connectionSource;
         this.transactionManager = new TransactionManager(connectionSource);
 
@@ -43,23 +50,27 @@ public class DatabaseContext {
         return connectionSource;
     }
 
-    public void withTransaction(Callable<Void> action) throws SQLException {
-        transactionManager.callInTransaction(action);
+    public <T> CompletableFuture<T> withTransaction(Callable<T> action) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return transactionManager.callInTransaction(action);
+            } catch (SQLException e) {
+                throw new CompletionException(e);
+            }
+        }, singleExecutor);
     }
 
-    @SuppressWarnings("unused")
     public <T extends IDatabaseTable, Key> Dao<T, Key> registerTable(Class<? extends IDatabaseTable> tableClass) {
         try {
             var dao = DaoManager.createDao(connectionSource, tableClass);
             extensionTables.put(tableClass, dao);
             return (Dao<T, Key>) dao;
         } catch (SQLException e) {
-            bridge.getLogger().log(Level.SEVERE, "Failed register extension table", e);
+            logger.log(Level.SEVERE, "Failed register extension table", e);
             return null;
         }
     }
 
-    @SuppressWarnings("unused")
     public <T extends IDatabaseTable, Key> Dao<T, Key> getDaoTable(Class<T> tableClass) {
         var table = extensionTables.getOrDefault(tableClass, null);
         if (table != null) {

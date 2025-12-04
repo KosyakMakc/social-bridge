@@ -2,6 +2,7 @@ package io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
+import io.github.kosyakmakc.socialBridge.IBridgeModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import io.github.kosyakmakc.socialBridge.Utils.Permissions;
@@ -11,15 +12,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 public abstract class MinecraftCommandBase implements IMinecraftCommand {
     private final String literal;
     private final String permission;
     @SuppressWarnings("rawtypes")
     private final List<CommandArgument> argumentDefinition;
-    private ISocialBridge bridge;
+    private ISocialBridge bridge = null;
+    private Logger logger = null;
 
-    @SuppressWarnings("unused")
     public MinecraftCommandBase(String literal) {
         this(literal, Permissions.NO_PERMISSION);
     }
@@ -41,6 +44,24 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
     }
 
     @Override
+    public CompletableFuture<Void> enable(IBridgeModule module) {
+        bridge = module.getBridge();
+        logger = Logger.getLogger(bridge.getLogger().getName() + '.' + module.getName() + '.' + getLiteral());
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> disable() {
+        bridge = null;
+        logger = null;
+        return CompletableFuture.completedFuture(null);
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    @Override
     public String getLiteral() {
         return literal;
     }
@@ -56,17 +77,12 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
         return argumentDefinition;
     }
 
-    @Override
-    public void init(ISocialBridge bridge) {
-        this.bridge = bridge;
-    }
-
     public abstract void execute(MinecraftUser sender, List<Object> args);
 
     @Override
     public void handle(MinecraftUser sender, StringReader argsReader) throws ArgumentFormatException {
         if (bridge == null) {
-            getBridge().getLogger().info(this.getClass().getName() + " - initialization failed, skip handling");
+            Logger.getGlobal().warning(this.getClass().getName() + " - initialization failed, skip handling");
             return;
         }
 

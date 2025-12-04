@@ -8,6 +8,5 @@ public abstract class MinecraftUser {
     public abstract void sendMessage(String message, HashMap<String, String> placeholders);
     public abstract String getName();
     public abstract String getLocale();
-    @SuppressWarnings("unused")
     public abstract UUID getId();
 }

@@ -15,7 +15,6 @@ public class ArgumentFormatException extends Exception {
         return messageKey;
     }
 
-    @SuppressWarnings("unused")
     public void logTo(Logger logger) {
         // TODO localize error via static INSTANCE IAuthBridge
         logger.info(messageKey.key());

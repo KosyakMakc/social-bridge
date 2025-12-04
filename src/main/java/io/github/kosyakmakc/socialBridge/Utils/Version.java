@@ -30,7 +30,6 @@ public class Version {
         return minor;
     }
 
-    @SuppressWarnings("unused")
     public int getPatch() {
         return patch;
     }
@@ -47,5 +46,10 @@ public class Version {
             return getMajor() == moduleVersion.getMajor()
                     && getMinor() >= moduleVersion.getMinor();
         }
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(major) + '.' + Integer.toString(minor) + '.' + Integer.toString(patch);
     }
 }

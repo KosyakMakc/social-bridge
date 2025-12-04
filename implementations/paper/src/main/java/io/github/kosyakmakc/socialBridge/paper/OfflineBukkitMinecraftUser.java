@@ -1,5 +1,12 @@
 package io.github.kosyakmakc.socialBridge.paper;
 
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import com.destroystokyo.paper.profile.PlayerProfile;
+
+import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import net.kyori.adventure.text.Component;
@@ -7,40 +14,39 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
-import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-public class BukkitMinecraftUser extends MinecraftUser {
+public class OfflineBukkitMinecraftUser extends MinecraftUser {
     private final IMinecraftPlatform platform;
     private final Logger logger;
-    private final Player player;
 
-    public BukkitMinecraftUser(Player player, IMinecraftPlatform platform) {
+    private final UUID playerId;
+    private final String playerName;
+
+    public OfflineBukkitMinecraftUser(PlayerProfile player, IMinecraftPlatform platform) {
         super();
         this.platform = platform;
         this.logger = Logger.getLogger(platform.getLogger().getName() + '.' + BukkitMinecraftUser.class.getSimpleName());
-        this.player = player;
+
+        this.playerId = player.getId();
+        this.playerName = player.getName();
     }
 
     public String getName() {
-        return player.getName();
+        return playerName;
     }
 
     @Override
     public UUID getId() {
-        return player.getUniqueId();
+        return playerId;
     }
 
     public String getLocale() {
-        return player.locale().getLanguage();
+        return LocalizationService.defaultLocale;
     }
 
     @Override
     public boolean HasPermission(String permission) {
-        return player.hasPermission(permission);
+        return false;
     }
 
     @Override
@@ -54,8 +60,7 @@ public class BukkitMinecraftUser extends MinecraftUser {
             builder.editTags(x -> x.resolver(Placeholder.component(placeholderKey, Component.text(placeholders.get(placeholderKey)))));
         }
 
-        var builtMessage = builder.build().deserialize(message);
-        player.sendMessage(builtMessage);
-        logger.info("message to '" + this.getName() + "' - " + builtMessage.toString());
+        var builtMessage = builder.build().deserialize(message).toString();
+        logger.info("message to '" + this.getName() + "' - " + builtMessage);
     }
 }

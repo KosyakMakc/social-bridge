@@ -1,6 +1,7 @@
 package io.github.kosyakmakc.socialBridge.TestEnvironment;
 
-import io.github.kosyakmakc.socialBridge.ISocialBridge;
+import io.github.kosyakmakc.socialBridge.DefaultModule;
+import io.github.kosyakmakc.socialBridge.IBridgeModule;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
@@ -9,15 +10,16 @@ import io.github.kosyakmakc.socialBridge.SocialBridge;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.Objects;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
-    @Override
-    public void setAuthBridge(ISocialBridge authBridge) {
-
-    }
+    public static final Version VERSION = new Version("0.3.0");
+    private LinkedBlockingQueue<IBridgeModule> registeredModules = new LinkedBlockingQueue<>();
+    private HashMap<UUID, HashMap<String, String>> config = new HashMap<>();
 
     @Override
     public Path getDataDirectory() {
@@ -30,23 +32,42 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
     }
 
     @Override
-    public MinecraftUser getUser(UUID minecraftId) {
-        return null;
+    public CompletableFuture<MinecraftUser> tryGetUser(UUID minecraftId) {
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public String get(String parameter, String defaultValue) {
-        if (Objects.equals(parameter, "connectionString")) {
-            return "jdbc:h2:mem:account";
-            // return "jdbc:sqlite:social-bridge.sqlite";
+    public CompletableFuture<String> get(IBridgeModule module, String parameter, String defaultValue) {
+        return get(module.getId(), parameter, defaultValue);
+    }
+
+    @Override
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
+        var moduleConfig = config.getOrDefault(moduleId, null);
+        if (moduleConfig == null) {
+            moduleConfig = new HashMap<>();
+            config.put(moduleId, moduleConfig);
         }
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+
+        var result = moduleConfig.getOrDefault(parameter, defaultValue);
+        return CompletableFuture.completedFuture(result);
     }
 
     @Override
-    public boolean set(String parameter, String value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+    public CompletableFuture<Boolean> set(IBridgeModule module, String parameter, String value) {
+        return set(module.getId(), parameter, value);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
+        var moduleConfig = config.getOrDefault(moduleId, null);
+        if (moduleConfig == null) {
+            moduleConfig = new HashMap<>();
+            config.put(moduleId, moduleConfig);
+        }
+
+        moduleConfig.put(parameter, value);
+        return CompletableFuture.completedFuture(true);
     }
 
     private static boolean isInited = false;
@@ -55,12 +76,22 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
             return;
         }
 
-        SocialBridge.Init(new HeadlessMinecraftPlatform());
+        var mcPlatform = new HeadlessMinecraftPlatform();
+        mcPlatform.set(DefaultModule.MODULE_ID, "connectionString", "jdbc:h2:mem:account");
+
+        SocialBridge.Init(mcPlatform);
+        SocialBridge.INSTANCE.connectModule(new ArgumentsTestModule()).join();
         isInited = true;
     }
 
     @Override
     public Version getSocialBridgeVersion() {
-        return new Version("0.2.1");
+        return VERSION;
+    }
+
+    @Override
+    public CompletableFuture<Void> connectModule(IBridgeModule module) {
+        registeredModules.add(module);
+        return CompletableFuture.completedFuture(null);
     }
 }

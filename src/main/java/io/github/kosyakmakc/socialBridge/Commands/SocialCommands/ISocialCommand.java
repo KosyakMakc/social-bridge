@@ -7,6 +7,5 @@ import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
 import java.io.StringReader;
 
 public interface ISocialCommand extends ICommand {
-    @SuppressWarnings("unused")
     void handle(SocialUser sender, StringReader argsReader) throws ArgumentFormatException;
 }

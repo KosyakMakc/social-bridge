@@ -9,21 +9,14 @@ public abstract class SocialUser {
         this.platform = platform;
     }
 
-    @SuppressWarnings("unused")
     public ISocialPlatform getPlatform() {
         return platform;
     }
 
+    public abstract Identifier getId();
     public abstract String getName();
-
-    @SuppressWarnings("unused")
-    public abstract void sendMessage(String message, HashMap<String, String> placeholders);
-
-    @SuppressWarnings("unused")
     public abstract String getLocale();
 
-    @SuppressWarnings("unused")
-    public abstract SocialUserIdType getIdType();
-    @SuppressWarnings("unused")
-    public abstract Object getId();
+    public abstract void sendMessage(String message, HashMap<String, String> placeholders);
+
 }
