@@ -38,22 +38,32 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
 
     @Override
     public CompletableFuture<String> get(IBridgeModule module, String parameter, String defaultValue) {
-        var moduleConfig = config.getOrDefault(module.getId(), null);
+        return get(module.getId(), parameter, defaultValue);
+    }
+
+    @Override
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
+        var moduleConfig = config.getOrDefault(moduleId, null);
         if (moduleConfig == null) {
             moduleConfig = new HashMap<>();
-            config.put(module.getId(), moduleConfig);
+            config.put(moduleId, moduleConfig);
         }
 
-        var result = moduleConfig.getOrDefault(moduleConfig, defaultValue);
+        var result = moduleConfig.getOrDefault(parameter, defaultValue);
         return CompletableFuture.completedFuture(result);
     }
 
     @Override
     public CompletableFuture<Boolean> set(IBridgeModule module, String parameter, String value) {
-        var moduleConfig = config.getOrDefault(module.getId(), null);
+        return set(module.getId(), parameter, value);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
+        var moduleConfig = config.getOrDefault(moduleId, null);
         if (moduleConfig == null) {
             moduleConfig = new HashMap<>();
-            config.put(module.getId(), moduleConfig);
+            config.put(moduleId, moduleConfig);
         }
 
         moduleConfig.put(parameter, value);
@@ -67,8 +77,7 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
         }
 
         var mcPlatform = new HeadlessMinecraftPlatform();
-        var fakeDefaultModuleIdProvider = new DefaultModule(mcPlatform);
-        mcPlatform.set(fakeDefaultModuleIdProvider, "connectionString", "jdbc:h2:mem:account");
+        mcPlatform.set(DefaultModule.MODULE_ID, "connectionString", "jdbc:h2:mem:account");
 
         SocialBridge.Init(mcPlatform);
         SocialBridge.INSTANCE.connectModule(new ArgumentsTestModule()).join();

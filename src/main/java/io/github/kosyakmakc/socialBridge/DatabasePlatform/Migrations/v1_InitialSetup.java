@@ -28,8 +28,15 @@ public class v1_InitialSetup implements IMigration {
             var parameter = ConfigurationService.DATABASE_VERSION;
             var value = Integer.toString(getVersion());
             
-            var record = databaseContext.configurations.queryForId(parameter);
-            if (record != null) {
+            var records = databaseContext.configurations
+                                            .queryBuilder()
+                                            .where()
+                                                .eq(ConfigRow.MODULE_FIELD_NAME, DefaultModule.MODULE_ID)
+                                                .and()
+                                                .eq(ConfigRow.PARAMETER_FIELD_NAME, parameter)
+                                            .query();
+            if (records.size() > 0) {
+                var record = records.getFirst();
                 record.setValue(value);
                 databaseContext.configurations.update(record);
             } else {

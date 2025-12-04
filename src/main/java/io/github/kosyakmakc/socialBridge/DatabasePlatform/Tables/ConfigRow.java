@@ -9,11 +9,15 @@ import com.j256.ormlite.table.DatabaseTable;
 public class ConfigRow implements IDatabaseTable {
     public static final String TABLE_NAME = "config";
 
-    public static final String MODULE_FIELD_NAME = "id";
+    public static final String ID_FIELD_NAME = "id";
+    public static final String MODULE_FIELD_NAME = "module_uuid";
     public static final String PARAMETER_FIELD_NAME = "parameter";
     public static final String VALUE_FIELD_NAME = "value";
 
     public static final String FULL_KEY_INDEX_NAME = "full_key_idx";
+
+    @DatabaseField(columnName = ID_FIELD_NAME, id = true)
+    private int id;
 
     @DatabaseField(columnName = MODULE_FIELD_NAME, uniqueIndexName = FULL_KEY_INDEX_NAME)
     private UUID module;

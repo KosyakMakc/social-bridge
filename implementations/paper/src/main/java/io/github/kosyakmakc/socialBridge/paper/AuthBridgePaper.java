@@ -228,9 +228,13 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
             }
         });
     }
-
     @Override
     public CompletableFuture<String> get(IBridgeModule module, String parameter, String defaultValue) {
+        return get(module.getId(), parameter, defaultValue);
+    }
+
+    @Override
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
         return CompletableFuture.supplyAsync(() -> {
             if (Objects.equals(parameter, "connectionString")) {
                 try {
@@ -242,7 +246,7 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
 
             var config = this.getConfig();
 
-            var moduleSection = config.getConfigurationSection("module-" + module.getId().toString());
+            var moduleSection = config.getConfigurationSection("module-" +  moduleId.toString());
             if (moduleSection == null) {
                 return defaultValue;
             }
@@ -253,13 +257,18 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
 
     @Override
     public CompletableFuture<Boolean> set(IBridgeModule module, String parameter, String value) {
+        return set(module.getId(), parameter, value);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var config = this.getConfig();
 
-                var moduleSection = config.getConfigurationSection("module-" + module.getId().toString());
+                var moduleSection = config.getConfigurationSection("module-" + moduleId.toString());
                 if (moduleSection == null) {
-                    moduleSection = config.createSection(module.getName());
+                    moduleSection = config.createSection("module-" + moduleId.toString());
                 }
 
                 moduleSection.set(parameter, value);

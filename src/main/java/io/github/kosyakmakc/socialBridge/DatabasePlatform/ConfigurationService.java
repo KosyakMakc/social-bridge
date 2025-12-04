@@ -7,6 +7,7 @@ import io.github.kosyakmakc.socialBridge.IConfigurationService;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -21,12 +22,18 @@ public class ConfigurationService implements IConfigurationService {
         this.logger = Logger.getLogger(bridge.getLogger().getName() + '.' + ConfigurationService.class.getSimpleName());
     }
 
+    @Override
     public CompletableFuture<String> get(IBridgeModule module, String parameter, String defaultValue) {
+        return get(module.getId(), parameter, defaultValue);
+    }
+
+    @Override
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
         return bridge.queryDatabase(databaseContext -> {
             try {
                 var records = databaseContext.configurations.queryBuilder()
                             .where()
-                                .eq(ConfigRow.MODULE_FIELD_NAME, module.getId())
+                                .eq(ConfigRow.MODULE_FIELD_NAME, moduleId)
                                 .and()
                                 .eq(ConfigRow.PARAMETER_FIELD_NAME, parameter)
                             .query();
@@ -41,12 +48,23 @@ public class ConfigurationService implements IConfigurationService {
         });
     }
 
+    @Override
     public CompletableFuture<Boolean> set(IBridgeModule module, String parameter, String value) {
+        return set(module.getId(), parameter, value)
+        .thenApply(status -> {
+            if (status) {
+                logger.info("database configuration change: " + module.getName() + "." + parameter + "=" + value);
+            }
+            return status;
+        });
+    }
+
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
         return bridge.queryDatabase(databaseContext -> {
             try {
                 var records = databaseContext.configurations.queryBuilder()
                             .where()
-                                .eq(ConfigRow.MODULE_FIELD_NAME, module.getId())
+                                .eq(ConfigRow.MODULE_FIELD_NAME, moduleId)
                                 .and()
                                 .eq(ConfigRow.PARAMETER_FIELD_NAME, parameter)
                             .query();
@@ -55,11 +73,10 @@ public class ConfigurationService implements IConfigurationService {
                     record.setValue(value);
                     databaseContext.configurations.update(record);
                 } else {
-                    var newRecord = new ConfigRow(module.getId(), parameter, value);
+                    var newRecord = new ConfigRow(moduleId, parameter, value);
                     databaseContext.configurations.create(newRecord);
                 }
 
-                logger.info("database configuration change: " + module.getName() + "." + parameter + "=" + value);
                 return true;
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -69,7 +86,7 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     public CompletableFuture<Integer> getDatabaseVersion() {
-        return get(bridge.getModule(DefaultModule.class), DATABASE_VERSION, "")
+        return get(DefaultModule.MODULE_ID, DATABASE_VERSION, "")
                .thenApply(rawVersion -> {
                    try {
                        return Integer.parseInt(rawVersion);
