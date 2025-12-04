@@ -1,5 +1,7 @@
 package io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables;
 
+import java.util.UUID;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -14,7 +16,7 @@ public class ConfigRow implements IDatabaseTable {
     public static final String FULL_KEY_INDEX_NAME = "full_key_idx";
 
     @DatabaseField(columnName = MODULE_FIELD_NAME, uniqueIndexName = FULL_KEY_INDEX_NAME)
-    private String module;
+    private UUID module;
 
     @DatabaseField(columnName = PARAMETER_FIELD_NAME, uniqueIndexName = FULL_KEY_INDEX_NAME)
     private String parameter;
@@ -26,13 +28,13 @@ public class ConfigRow implements IDatabaseTable {
 
     }
 
-    public ConfigRow(String module, String parameter, String value) {
+    public ConfigRow(UUID module, String parameter, String value) {
         this.module = module;
         this.parameter = parameter;
         this.value = value;
     }
 
-    public String getModule() {
+    public UUID getModule() {
         return module;
     }
 

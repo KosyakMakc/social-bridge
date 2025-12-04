@@ -1,5 +1,7 @@
 package io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables;
 
+import java.util.UUID;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -19,7 +21,7 @@ public class Localization implements IDatabaseTable {
     private int id;
 
     @DatabaseField(columnName = MODULE_FIELD_NAME, uniqueIndexName = LANGUAGE_KEY_INDEX_NAME)
-    private String module;
+    private UUID module;
 
     @DatabaseField(columnName = LANGUAGE_FIELD_NAME, uniqueIndexName = LANGUAGE_KEY_INDEX_NAME)
     private String language;
@@ -34,7 +36,7 @@ public class Localization implements IDatabaseTable {
 
     }
 
-    public Localization(String module, String language, String key, String localization) {
+    public Localization(UUID module, String language, String key, String localization) {
         this.module = module;
         this.language = language;
         this.key = key;
@@ -45,7 +47,7 @@ public class Localization implements IDatabaseTable {
         return id;
     }
 
-    public String getModule() {
+    public UUID getModule() {
         return module;
     }
 

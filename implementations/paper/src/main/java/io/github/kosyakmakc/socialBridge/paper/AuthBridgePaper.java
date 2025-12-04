@@ -242,7 +242,7 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
 
             var config = this.getConfig();
 
-            var moduleSection = config.getConfigurationSection(module.getName());
+            var moduleSection = config.getConfigurationSection("module-" + module.getId().toString());
             if (moduleSection == null) {
                 return defaultValue;
             }
@@ -257,7 +257,7 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
             try {
                 var config = this.getConfig();
 
-                var moduleSection = config.getConfigurationSection(module.getName());
+                var moduleSection = config.getConfigurationSection("module-" + module.getId().toString());
                 if (moduleSection == null) {
                     moduleSection = config.createSection(module.getName());
                 }

@@ -1,6 +1,8 @@
 package io.github.kosyakmakc.socialBridge.DatabasePlatform.Migrations;
 
 import com.j256.ormlite.table.TableUtils;
+
+import io.github.kosyakmakc.socialBridge.DefaultModule;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.ConfigurationService;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.DatabaseContext;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables.ConfigRow;
@@ -31,7 +33,7 @@ public class v1_InitialSetup implements IMigration {
                 record.setValue(value);
                 databaseContext.configurations.update(record);
             } else {
-                var newRecord = new ConfigRow(parameter, value);
+                var newRecord = new ConfigRow(DefaultModule.MODULE_ID, parameter, value);
                 databaseContext.configurations.create(newRecord);
             }
         }

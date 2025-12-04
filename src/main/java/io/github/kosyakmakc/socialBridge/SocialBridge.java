@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class SocialBridge implements ISocialBridge {
 
@@ -105,6 +106,8 @@ public class SocialBridge implements ISocialBridge {
     public CompletableFuture<Boolean> connectSocialPlatform(ISocialPlatform socialPlatform) {
         var logger = getLogger();
         logger.info("connect social platform '" + socialPlatform.getPlatformName() + "' (" +  socialPlatform.getCompabilityVersion().toString() + ")");
+        
+        ValidateAndThrowSocialPlatform(socialPlatform);
 
         var rootVersion = getVersion();
         var childVersion = socialPlatform.getCompabilityVersion();
@@ -129,6 +132,16 @@ public class SocialBridge implements ISocialBridge {
         else {
             logger.severe("social platform '" + socialPlatform.getPlatformName() + "' have incompatible social-bridge API, ignoring it...");
             return CompletableFuture.completedFuture(false);
+        }
+    }
+
+    private static final Pattern socialPlatformNameValidation = Pattern.compile("[\s\\\"\'`]"); // no whitespaces, escape symbol and quotas
+
+    private void ValidateAndThrowSocialPlatform(ISocialPlatform socialPlatform) {
+        var name = socialPlatform.getPlatformName();
+        var matcher = socialPlatformNameValidation.matcher(name);
+        if (matcher.find()) {
+            throw new RuntimeException("Invalid social platform name, please don't use whitespaces, escape symbol and quotas");
         }
     }
 
@@ -171,6 +184,8 @@ public class SocialBridge implements ISocialBridge {
         var logger = getLogger();
         logger.info("Registering module '" + module.getName() + "' (" +  module.getCompabilityVersion().toString() + ")");
 
+        ValidateAndThrowModule(module);
+
         var rootVersion = getVersion();
         var childVersion = module.getCompabilityVersion();
         if (rootVersion.isCompatible(childVersion)) {
@@ -197,6 +212,59 @@ public class SocialBridge implements ISocialBridge {
         else {
             logger.severe("module '" + module.getName() + "' have incompatible social-bridge API, ignoring it...");
             return CompletableFuture.completedFuture(false);
+        }
+    }
+
+    private static final Pattern moduleNameValidation = Pattern.compile("[\s\\\"\'`-]"); // no whitespaces, escape symbol, dash symbol and quotas
+    
+    private static final Pattern socialCommandNameValidation = Pattern.compile("[\s\\\"\'`-]"); // no whitespaces, escape symbol, dash symbol and quotas
+    private static final Pattern minecraftCommandNameValidation = Pattern.compile("[\s\\\"\'`]"); // no whitespaces, escape symbol and quotas
+
+    private static final Pattern translationLanguageValidation = Pattern.compile("^[a-z]{2}$"); // no whitespaces, escape symbol and quotas
+    private static final Pattern translationKeyValidation = Pattern.compile("^[a-zA-Z_]+$"); // no whitespaces, escape symbol and quotas
+
+    private void ValidateAndThrowModule(IBridgeModule module) {
+        for (var existedModule : getModules()) {
+            if (existedModule.getId().equals(module.getId())) {
+                throw new RuntimeException("Duplication module UUID detected");
+            }
+            if (existedModule.getName().equals(module.getName())) {
+                throw new RuntimeException("Duplication module name detected");
+            }
+        }
+        
+        var name = module.getName();
+        var matcher1 = moduleNameValidation.matcher(name);
+        if (matcher1.find()) {
+            throw new RuntimeException("Invalid module name, please don't use whitespaces, escape symbol, dash symbol and quotas");
+        }
+
+        for (var socialCommand : module.getSocialCommands()) {
+            var matcher2 = socialCommandNameValidation.matcher(socialCommand.getLiteral());
+            if (matcher2.find()) {
+                throw new RuntimeException("Invalid social command name, please don't use whitespaces, escape symbol, dash symbol and quotas");
+            }
+        }
+
+        for (var minecraftCommand : module.getMinecraftCommands()) {
+            var matcher3 = minecraftCommandNameValidation.matcher(minecraftCommand.getLiteral());
+            if (matcher3.find()) {
+                throw new RuntimeException("Invalid social command name, please don't use whitespaces, escape symbol and quotas");
+            }
+        }
+
+        for (var translationSource : module.getTranslations()) {
+            var matcher4 = translationLanguageValidation.matcher(translationSource.getLanguage());
+            if (!matcher4.find()) {
+                throw new RuntimeException("Invalid translation language name, please use ISO 639 (2 symbols of [a-z])");
+            }
+
+            for (var record : translationSource.getRecords()) {
+                var matcher5 = translationKeyValidation.matcher(record.key());
+                if (!matcher5.find()) {
+                    throw new RuntimeException("Invalid translation key name, please use [a-zA-Z_] symbols");
+                }
+            }
         }
     }
 

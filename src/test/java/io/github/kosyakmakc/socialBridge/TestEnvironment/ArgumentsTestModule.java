@@ -2,6 +2,7 @@ package io.github.kosyakmakc.socialBridge.TestEnvironment;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import io.github.kosyakmakc.socialBridge.IBridgeModule;
@@ -18,6 +19,8 @@ import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.S
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
 public class ArgumentsTestModule implements IBridgeModule {
+    public static final UUID MODULE_ID = UUID.fromString("e5912fb7-7801-498c-9c1e-2bed98653ea3");
+
     private final String name = "ArgumentsTest";
     @SuppressWarnings("rawtypes")
     private final HashMap<Class, ISocialCommand> socialCommands = new HashMap<>();
@@ -131,6 +134,11 @@ public class ArgumentsTestModule implements IBridgeModule {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public UUID getId() {
+        return MODULE_ID;
     }
 
 }

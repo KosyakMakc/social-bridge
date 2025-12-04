@@ -9,6 +9,7 @@ import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +22,7 @@ public class LocalizationService {
     private final Logger logger;
     private final ISocialBridge bridge;
 
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<String, String>>> inMemoryCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, ConcurrentHashMap<String, ConcurrentHashMap<String, String>>> inMemoryCache = new ConcurrentHashMap<>();
 
     public LocalizationService(ISocialBridge bridge) {
         this.bridge = bridge;
@@ -29,10 +30,10 @@ public class LocalizationService {
     }
 
     public String getMessage(IBridgeModule module, String locale, MessageKey key) {
-        var moduleCache = inMemoryCache.getOrDefault(module.getName(), null);
+        var moduleCache = inMemoryCache.getOrDefault(module.getId(), null);
         if (moduleCache == null) {
             moduleCache = new ConcurrentHashMap<>();
-            inMemoryCache.put(module.getName(), moduleCache);
+            inMemoryCache.put(module.getId(), moduleCache);
         }
         var languageCache = moduleCache.getOrDefault(locale, null);
         if (languageCache == null) {
@@ -50,7 +51,7 @@ public class LocalizationService {
                 try {
                     records = databaseContext.localizations.queryBuilder()
                             .where()
-                                .eq(Localization.MODULE_FIELD_NAME, module.getName())
+                                .eq(Localization.MODULE_FIELD_NAME, module.getId())
                                 .and()
                                 .eq(Localization.LANGUAGE_FIELD_NAME, locale)
                                 .and()
@@ -90,27 +91,27 @@ public class LocalizationService {
     }
 
     public CompletableFuture<Void> restoreLocalizationsOfModule(IBridgeModule module) {
-        var moduleName = module.getName();
-        logger.info("restoring localizations for module '" + moduleName + "'");
+        var moduleId = module.getId();
+        logger.info("restoring localizations for module '" + module.getName() + "'");
 
-        if (!inMemoryCache.containsKey(moduleName)) {
-            inMemoryCache.put(moduleName, new ConcurrentHashMap<>());
+        if (!inMemoryCache.containsKey(moduleId)) {
+            inMemoryCache.put(moduleId, new ConcurrentHashMap<>());
         }
 
         return CompletableFuture.allOf(
             module
                 .getTranslations()
                 .stream()
-                .map(x -> restoreLocalizationSource(x, moduleName))
+                .map(x -> restoreLocalizationSource(x, moduleId))
                 .toArray(CompletableFuture[]::new));
     }
 
-    private CompletableFuture<Void> restoreLocalizationSource (ITranslationSource source, String moduleName) {
+    private CompletableFuture<Void> restoreLocalizationSource (ITranslationSource source, UUID moduleId) {
         AtomicInteger insertedRecords = new AtomicInteger();
         var records = source.getRecords();
         var sourceRecords = records.size();
         
-        var moduleCache = inMemoryCache.get(moduleName);
+        var moduleCache = inMemoryCache.get(moduleId);
         if (!moduleCache.containsKey(source.getLanguage())) {
             moduleCache.put(source.getLanguage(), new ConcurrentHashMap<>());
         }
@@ -124,7 +125,7 @@ public class LocalizationService {
                         try {
                             databaseContext.localizations.create(
                                 new Localization(
-                                    moduleName,
+                                    moduleId,
                                     source.getLanguage(),
                                     record.key(),
                                     record.localization()

@@ -26,7 +26,7 @@ public class ConfigurationService implements IConfigurationService {
             try {
                 var records = databaseContext.configurations.queryBuilder()
                             .where()
-                                .eq(ConfigRow.MODULE_FIELD_NAME, module.getName())
+                                .eq(ConfigRow.MODULE_FIELD_NAME, module.getId())
                                 .and()
                                 .eq(ConfigRow.PARAMETER_FIELD_NAME, parameter)
                             .query();
@@ -46,7 +46,7 @@ public class ConfigurationService implements IConfigurationService {
             try {
                 var records = databaseContext.configurations.queryBuilder()
                             .where()
-                                .eq(ConfigRow.MODULE_FIELD_NAME, module.getName())
+                                .eq(ConfigRow.MODULE_FIELD_NAME, module.getId())
                                 .and()
                                 .eq(ConfigRow.PARAMETER_FIELD_NAME, parameter)
                             .query();
@@ -55,7 +55,7 @@ public class ConfigurationService implements IConfigurationService {
                     record.setValue(value);
                     databaseContext.configurations.update(record);
                 } else {
-                    var newRecord = new ConfigRow(module.getName(), parameter, value);
+                    var newRecord = new ConfigRow(module.getId(), parameter, value);
                     databaseContext.configurations.create(newRecord);
                 }
 

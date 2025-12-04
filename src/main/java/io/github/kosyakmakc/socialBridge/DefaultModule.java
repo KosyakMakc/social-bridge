@@ -9,9 +9,11 @@ import io.github.kosyakmakc.socialBridge.Utils.Version;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class DefaultModule implements IBridgeModule {
+    public static final UUID MODULE_ID = UUID.fromString("dcab3770-b24e-44bb-b9a9-19edf96b9986");
     public static final String MODULE_NAME = "Default module";
     public static final Version VERSION = SocialBridge.INSTANCE.getVersion();
     public static final List<ITranslationSource> translationSources = List.of(new English());
@@ -71,5 +73,10 @@ public class DefaultModule implements IBridgeModule {
     @Override
     public ISocialBridge getBridge() {
         return bridge;
+    }
+
+    @Override
+    public UUID getId() {
+        return MODULE_ID;
     }
 }
