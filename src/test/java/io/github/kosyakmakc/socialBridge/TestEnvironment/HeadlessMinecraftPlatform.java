@@ -57,7 +57,7 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
         }
 
         moduleConfig.put(parameter, value);
-        return CompletableFuture.completedFuture(false);
+        return CompletableFuture.completedFuture(true);
     }
 
     private static boolean isInited = false;
