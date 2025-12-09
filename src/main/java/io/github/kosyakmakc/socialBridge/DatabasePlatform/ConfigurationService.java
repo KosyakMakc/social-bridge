@@ -42,7 +42,10 @@ public class ConfigurationService implements IConfigurationService {
                     return record.getValue();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                // skip first sql query to not existed table
+                if (!e.getMessage().equals("[SQLITE_ERROR] SQL error or missing database (no such table: config)")) {
+                    e.printStackTrace();
+                }
             }
             return defaultValue;
         });

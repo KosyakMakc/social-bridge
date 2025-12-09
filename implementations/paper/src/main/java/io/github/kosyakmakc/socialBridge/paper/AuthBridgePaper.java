@@ -43,6 +43,7 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
 
     public AuthBridgePaper() {
         try {
+            this.saveDefaultConfig();
             socialBridgVersion = new Version(this.getPluginMeta().getVersion());
             SocialBridge.Init(this);
             socialBridge = SocialBridge.INSTANCE;
@@ -236,14 +237,6 @@ public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatf
     @Override
     public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
         return CompletableFuture.supplyAsync(() -> {
-            if (Objects.equals(parameter, "connectionString")) {
-                try {
-                    return "jdbc:sqlite:" + Path.of(getDataDirectory().toAbsolutePath().toString(), "social-bridge.sqlite");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
             var config = this.getConfig();
 
             var moduleSection = config.getConfigurationSection("module-" +  moduleId.toString());
