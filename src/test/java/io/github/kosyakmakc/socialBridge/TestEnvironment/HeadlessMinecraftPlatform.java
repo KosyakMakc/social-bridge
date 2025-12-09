@@ -80,7 +80,6 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
         mcPlatform.set(DefaultModule.MODULE_ID, "connectionString", "jdbc:h2:mem:account");
 
         SocialBridge.Init(mcPlatform);
-        SocialBridge.INSTANCE.connectModule(new ArgumentsTestModule()).join();
         isInited = true;
     }
 

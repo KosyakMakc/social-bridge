@@ -7,21 +7,18 @@ import java.util.concurrent.CompletableFuture;
 
 import io.github.kosyakmakc.socialBridge.IBridgeModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
+import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.ISocialCommand;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.ITranslationSource;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IModuleLoader;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleBooleanCommand;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleFloatCommand;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleGreedyStringCommand;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleIntegerCommand;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleWordStringCommand;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
-public class ArgumentsTestModule implements IBridgeModule {
-    public static final UUID MODULE_ID = UUID.fromString("e5912fb7-7801-498c-9c1e-2bed98653ea3");
+public class ModuleForTest implements IBridgeModule, AutoCloseable {
+    private UUID moduleId = UUID.randomUUID();
+    private Version version = HeadlessMinecraftPlatform.VERSION;
 
-    private final String name = "ArgumentsTest";
+    private final IModuleLoader loader;
     @SuppressWarnings("rawtypes")
     private final HashMap<Class, ISocialCommand> socialCommands = new HashMap<>();
     @SuppressWarnings("rawtypes")
@@ -29,18 +26,19 @@ public class ArgumentsTestModule implements IBridgeModule {
     @SuppressWarnings("rawtypes")
     private final HashMap<Class, ITranslationSource> translations = new HashMap<>();
     private ISocialBridge bridge;
+    private String name = "DefaultEmptyName";
 
-    public ArgumentsTestModule() {
-        addSocialCommand(new SimpleBooleanCommand());
-        addSocialCommand(new SimpleFloatCommand());
-        addSocialCommand(new SimpleGreedyStringCommand());
-        addSocialCommand(new SimpleIntegerCommand());
-        addSocialCommand(new SimpleWordStringCommand());
+    public ModuleForTest() {
+        this.loader = SocialBridge.INSTANCE.getMinecraftPlatform();
     }
 
     @Override
     public Version getCompabilityVersion() {
-        return HeadlessMinecraftPlatform.VERSION;
+        return version;
+    }
+
+    public void setCompabilityVersion(Version version) {
+        this.version = version;
     }
 
     @Override
@@ -128,7 +126,7 @@ public class ArgumentsTestModule implements IBridgeModule {
 
     @Override
     public IModuleLoader getLoader() {
-        return null;
+        return loader;
     }
 
     @Override
@@ -136,9 +134,21 @@ public class ArgumentsTestModule implements IBridgeModule {
         return name;
     }
 
-    @Override
-    public UUID getId() {
-        return MODULE_ID;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    @Override
+    public UUID getId() {
+        return moduleId;
+    }
+
+    public void setId(UUID id) {
+        this.moduleId = id;
+    }
+
+    @Override
+    public void close() {
+        SocialBridge.INSTANCE.disconnectModule(this);
+    }
 }

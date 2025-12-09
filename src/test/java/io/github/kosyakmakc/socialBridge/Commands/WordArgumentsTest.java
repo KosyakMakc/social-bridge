@@ -2,7 +2,7 @@ package io.github.kosyakmakc.socialBridge.Commands;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestModule;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.ModuleForTest;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleWordStringCommand;
 
@@ -35,18 +35,22 @@ public class WordArgumentsTest {
     })
     void simpleIntegerCheck(String answer, String raw, boolean isError) throws SQLException, IOException {
         HeadlessMinecraftPlatform.Init();
-        try {
-            var module = SocialBridge.INSTANCE.getModule(ArgumentsTestModule.class);
-            var command = module.getSocialCommand(SimpleWordStringCommand.class);
-            command.prepareAnswer(answer);
-            command.handle(null, new StringReader(raw));
-
-            if (isError) {
-                Assertions.fail("MUST failed | " + answer + " | " + raw + " | " + isError);
-            }
-        } catch (ArgumentFormatException e) {
-            if (!isError) {
-                Assertions.fail("MUST passing | " + answer + " | " + raw + " | " + isError);
+        try (var module = new ModuleForTest()) {
+            try {
+                var command = new SimpleWordStringCommand();
+                module.addSocialCommand(command);
+                SocialBridge.INSTANCE.connectModule(module);
+                
+                command.prepareAnswer(answer);
+                command.handle(null, new StringReader(raw));
+                
+                if (isError) {
+                    Assertions.fail("MUST failed | " + answer + " | " + raw + " | " + isError);
+                }
+            } catch (ArgumentFormatException e) {
+                if (!isError) {
+                    Assertions.fail("MUST passing | " + answer + " | " + raw + " | " + isError);
+                }
             }
         }
     }
