@@ -5,6 +5,7 @@ import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.IBridgeModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -16,24 +17,31 @@ import java.util.logging.Logger;
 
 public abstract class SocialCommandBase implements ISocialCommand {
     private final String commandName;
+    private final MessageKey description;
     @SuppressWarnings("rawtypes")
     private final List<CommandArgument> argumentDefinition;
     private ISocialBridge bridge = null;
     private Logger logger = null;
 
-    public SocialCommandBase(String commandName) {
-        this(commandName, new ArrayList<>());
+    public SocialCommandBase(String commandName, MessageKey description) {
+        this(commandName, description, new ArrayList<>());
     }
 
     @SuppressWarnings("rawtypes")
-    public SocialCommandBase(String commandName, List<CommandArgument> argumentDefinition) {
+    public SocialCommandBase(String commandName, MessageKey description, List<CommandArgument> argumentDefinition) {
         this.commandName = commandName;
+        this.description = description;
         this.argumentDefinition = Collections.unmodifiableList(argumentDefinition);
     }
 
     @Override
     public String getLiteral() {
         return commandName;
+    }
+
+    @Override
+    public MessageKey getDescription() {
+        return description;
     }
 
     @SuppressWarnings("rawtypes")

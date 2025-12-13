@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Assertions;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 public class SimpleGreedyStringCommand extends SocialCommandBase {
     private String answer;
     
     public SimpleGreedyStringCommand() {
-        super("GreedyStringTest", List.of(CommandArgument.ofGreedyString("single argument")));
+        super("GreedyStringTest", MessageKey.EMPTY, List.of(CommandArgument.ofGreedyString("single argument")));
     }
     
     public void prepareAnswer(String answer) {
