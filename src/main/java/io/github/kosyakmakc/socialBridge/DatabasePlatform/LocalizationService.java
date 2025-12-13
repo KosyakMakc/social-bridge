@@ -110,18 +110,28 @@ public class LocalizationService {
         AtomicInteger insertedRecords = new AtomicInteger();
         var records = source.getRecords();
         var sourceRecords = records.size();
+
+        var language = source.getLanguage();
+
+        if (language.isBlank()) {
+            throw new RuntimeException("ITranslationSource.getLanguage() must be a not blank");
+        }
         
         var moduleCache = inMemoryCache.get(moduleId);
-        if (!moduleCache.containsKey(source.getLanguage())) {
-            moduleCache.put(source.getLanguage(), new ConcurrentHashMap<>());
+        if (!moduleCache.containsKey(language)) {
+            moduleCache.put(language, new ConcurrentHashMap<>());
         }
-        var languageCache = moduleCache.get(source.getLanguage());
+        var languageCache = moduleCache.get(language);
 
         return CompletableFuture.allOf(
             records
                 .stream()
-                .map(record ->
-                    bridge.queryDatabase(databaseContext -> {
+                .map(record -> {
+                    if (record.key().isBlank()) {
+                        throw new RuntimeException("LocalizationRecord.Key() must be a not blank");
+                    }
+
+                    return bridge.queryDatabase(databaseContext -> {
                         try {
                             databaseContext.localizations.create(
                                 new Localization(
@@ -135,11 +145,16 @@ public class LocalizationService {
                             languageCache.put(record.key(), record.localization());
                         }
                         catch (SQLException error) {
-                            // TODO ignore unique index error
-                            error.printStackTrace();
+                            if (error.getCause() instanceof SQLException innerException && innerException.getSQLState() == "23505") {
+                                // do nothing
+                            }
+                            else {
+                                error.printStackTrace();
+                            }
                         }
                         return null;
-                    }))
+                    });
+                })
                 .toArray(CompletableFuture[]::new))
                 .thenRun(() -> {
                     if (insertedRecords.get() > 0) {
