@@ -118,17 +118,17 @@ public class LocalizationService {
         }
         
         var moduleCache = inMemoryCache.get(moduleId);
-        if (!moduleCache.containsKey(source.getLanguage())) {
-            moduleCache.put(source.getLanguage(), new ConcurrentHashMap<>());
+        if (!moduleCache.containsKey(language)) {
+            moduleCache.put(language, new ConcurrentHashMap<>());
         }
-        var languageCache = moduleCache.get(source.getLanguage());
+        var languageCache = moduleCache.get(language);
 
         return CompletableFuture.allOf(
             records
                 .stream()
                 .map(record -> {
                     if (record.key().isBlank()) {
-                        throw new RuntimeException("ITranslationSource.getLanguage() must be a not blank");
+                        throw new RuntimeException("LocalizationRecord.Key() must be a not blank");
                     }
 
                     return bridge.queryDatabase(databaseContext -> {
