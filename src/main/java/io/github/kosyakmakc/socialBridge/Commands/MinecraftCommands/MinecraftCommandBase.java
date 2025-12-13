@@ -5,6 +5,7 @@ import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.IBridgeModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import io.github.kosyakmakc.socialBridge.Utils.Permissions;
 
 import java.io.StringReader;
@@ -17,28 +18,30 @@ import java.util.logging.Logger;
 
 public abstract class MinecraftCommandBase implements IMinecraftCommand {
     private final String literal;
+    private final MessageKey description;
     private final String permission;
     @SuppressWarnings("rawtypes")
     private final List<CommandArgument> argumentDefinition;
     private ISocialBridge bridge = null;
     private Logger logger = null;
 
-    public MinecraftCommandBase(String literal) {
-        this(literal, Permissions.NO_PERMISSION);
+    public MinecraftCommandBase(String literal, MessageKey description) {
+        this(literal, description, Permissions.NO_PERMISSION);
     }
 
-    public MinecraftCommandBase(String literal, String permission) {
-        this(literal, permission, new ArrayList<>());
-    }
-
-    @SuppressWarnings("rawtypes")
-    public MinecraftCommandBase(String literal, List<CommandArgument> argumentDefinition) {
-        this(literal, Permissions.NO_PERMISSION, argumentDefinition);
+    public MinecraftCommandBase(String literal, MessageKey description, String permission) {
+        this(literal, description, permission, new ArrayList<>());
     }
 
     @SuppressWarnings("rawtypes")
-    public MinecraftCommandBase(String literal, String permission, List<CommandArgument> argumentDefinition) {
+    public MinecraftCommandBase(String literal, MessageKey description, List<CommandArgument> argumentDefinition) {
+        this(literal, description, Permissions.NO_PERMISSION, argumentDefinition);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public MinecraftCommandBase(String literal, MessageKey description, String permission, List<CommandArgument> argumentDefinition) {
         this.literal = literal;
+        this.description = description;
         this.permission = permission;
         this.argumentDefinition = Collections.unmodifiableList(argumentDefinition);
     }
@@ -64,6 +67,11 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
     @Override
     public String getLiteral() {
         return literal;
+    }
+
+    @Override
+    public MessageKey getDescription() {
+        return description;
     }
 
     @Override

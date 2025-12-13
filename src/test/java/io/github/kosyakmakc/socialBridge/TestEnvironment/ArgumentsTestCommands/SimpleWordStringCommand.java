@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Assertions;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 public class SimpleWordStringCommand extends SocialCommandBase {
     private String answer;
     
     public SimpleWordStringCommand() {
-        super("SimpleWordTest", List.of(CommandArgument.ofWord("single argument")));
+        super("SimpleWordTest", MessageKey.EMPTY, List.of(CommandArgument.ofWord("single argument")));
     }
     
     public void prepareAnswer(String answer) {

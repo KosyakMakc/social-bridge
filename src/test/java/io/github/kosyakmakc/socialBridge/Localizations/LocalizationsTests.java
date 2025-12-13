@@ -54,7 +54,6 @@ public class LocalizationsTests {
 
     @Test
     public void checkLanguageIsEmpty() throws SQLException, IOException {
-        // simulate multiple starts with the same localizations
         HeadlessMinecraftPlatform.Init();
         
         var module = new ModuleForTest();
@@ -71,7 +70,6 @@ public class LocalizationsTests {
 
     @Test
     public void checkKeyIsEmpty() throws SQLException, IOException {
-        // simulate multiple starts with the same localizations (restart server)
         HeadlessMinecraftPlatform.Init();
         
         var module = new ModuleForTest();

@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Assertions;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 
 public class SimpleIntegerCommand extends SocialCommandBase {
     private int answer;
     
     public SimpleIntegerCommand() {
-        super("IntegerTest", List.of(CommandArgument.ofInteger("single argument")));
+        super("IntegerTest", MessageKey.EMPTY, List.of(CommandArgument.ofInteger("single argument")));
     }
     
     public void prepareAnswer(int answer) {

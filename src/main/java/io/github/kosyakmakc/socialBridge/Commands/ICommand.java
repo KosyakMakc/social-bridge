@@ -1,6 +1,7 @@
 package io.github.kosyakmakc.socialBridge.Commands;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import io.github.kosyakmakc.socialBridge.IBridgeModule;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface ICommand {
     List<CommandArgument> getArgumentDefinitions();
 
     String getLiteral();
+    MessageKey getDescription();
 }

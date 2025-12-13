@@ -1,6 +1,9 @@
 package io.github.kosyakmakc.socialBridge;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.logger.LogBackendType;
+import com.j256.ormlite.logger.LoggerFactory;
+
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.*;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.ISocialPlatform;
@@ -33,6 +36,8 @@ public class SocialBridge implements ISocialBridge {
     private final BridgeEvents events = new BridgeEvents();
 
     private SocialBridge(IMinecraftPlatform mcPlatform) throws SQLException {
+        LoggerFactory.setLogBackendFactory(LogBackendType.NULL);
+
         minecraftPlatform = mcPlatform;
         socialPlatforms = new HashMap<>();
         bridgeModules = new HashMap<>();

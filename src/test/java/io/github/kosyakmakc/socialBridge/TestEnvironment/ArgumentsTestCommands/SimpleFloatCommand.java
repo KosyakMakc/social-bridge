@@ -7,12 +7,13 @@ import org.junit.jupiter.api.Assertions;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 public class SimpleFloatCommand extends SocialCommandBase {
     private float answer;
     
     public SimpleFloatCommand() {
-        super("FloatTest", List.of(CommandArgument.ofFloat("single argument")));
+        super("FloatTest", MessageKey.EMPTY, List.of(CommandArgument.ofFloat("single argument")));
     }
     
     public void prepareAnswer(float answer) {

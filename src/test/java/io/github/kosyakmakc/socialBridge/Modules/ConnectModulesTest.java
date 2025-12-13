@@ -15,16 +15,17 @@ import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ModuleForTest;
+import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
 public class ConnectModulesTest {
     @ParameterizedTest
     @CsvSource({
-        // Environment with SocialBridge(0.3.2)
-        "0.3.0", // is the same version
-        "0.3.1", // module just have a little bug-fix or new functionality
-        "0.3.2", // module just have a little bug-fix or new functionality
-        "0.3.20", // module just have a little bug-fix or new functionality
+        // Environment with SocialBridge(0.4.0)
+        "0.4.0", // is the same version
+        "0.4.1", // module just have a little bug-fix or new functionality
+        "0.4.2", // module just have a little bug-fix or new functionality
+        "0.4.20", // module just have a little bug-fix or new functionality
     })
     void checkModuleVersionCompability(String moduleVersion) throws SQLException, IOException {
         HeadlessMinecraftPlatform.Init();
@@ -45,9 +46,9 @@ public class ConnectModulesTest {
     @ParameterizedTest
     @CsvSource({
         // Environment with SocialBridge(0.3.2)
-        "0.4.0", // module have new breaking-changes api, DON'T CONNECT
-        "0.4.1", // module have new breaking-changes api, DON'T CONNECT
-        "0.4.99", // module have new breaking-changes api, DON'T CONNECT
+        "0.99.0", // module have new breaking-changes api, DON'T CONNECT
+        "0.99.1", // module have new breaking-changes api, DON'T CONNECT
+        "0.99.99", // module have new breaking-changes api, DON'T CONNECT
         "0.2.0", // module outdated to SocialBridge breaking-change api, DON'T CONNECT
         "0.2.1", // module outdated to SocialBridge breaking-change api, DON'T CONNECT
         "0.2.99", // module outdated to SocialBridge breaking-change api, DON'T CONNECT
@@ -136,7 +137,7 @@ public class ConnectModulesTest {
         HeadlessMinecraftPlatform.Init();
 
         try (var module = new ModuleForTest()) {
-            module.addMinecraftCommand(new MinecraftCommandBase(moduleName) {
+            module.addMinecraftCommand(new MinecraftCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
                 public void execute(MinecraftUser sender, List<Object> args) { }
                 
@@ -159,7 +160,7 @@ public class ConnectModulesTest {
         HeadlessMinecraftPlatform.Init();
 
         try (var module = new ModuleForTest()) {
-            module.addMinecraftCommand(new MinecraftCommandBase(moduleName) {
+            module.addMinecraftCommand(new MinecraftCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
                 public void execute(MinecraftUser sender, List<Object> args) { }
                 
@@ -188,7 +189,7 @@ public class ConnectModulesTest {
         HeadlessMinecraftPlatform.Init();
 
         try (var module = new ModuleForTest()) {
-            module.addSocialCommand(new SocialCommandBase(moduleName) {
+            module.addSocialCommand(new SocialCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
                 public void execute(SocialUser sender, List<Object> args) { }
                 
@@ -211,7 +212,7 @@ public class ConnectModulesTest {
         HeadlessMinecraftPlatform.Init();
 
         try (var module = new ModuleForTest()) {
-            module.addSocialCommand(new SocialCommandBase(moduleName) {
+            module.addSocialCommand(new SocialCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
                 public void execute(SocialUser sender, List<Object> args) { }
                 
