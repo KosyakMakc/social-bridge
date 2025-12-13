@@ -63,6 +63,10 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
+        if (parameter.isBlank()) {
+            throw new RuntimeException("Empty parameter name is not allowed");
+        }
+
         return bridge.queryDatabase(databaseContext -> {
             try {
                 var records = databaseContext.configurations.queryBuilder()

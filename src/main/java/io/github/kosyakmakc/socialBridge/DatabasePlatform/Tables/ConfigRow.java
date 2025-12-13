@@ -16,7 +16,7 @@ public class ConfigRow implements IDatabaseTable {
 
     public static final String FULL_KEY_INDEX_NAME = "full_key_idx";
 
-    @DatabaseField(columnName = ID_FIELD_NAME, id = true)
+    @DatabaseField(columnName = ID_FIELD_NAME, generatedId = true)
     private int id;
 
     @DatabaseField(columnName = MODULE_FIELD_NAME, uniqueIndexName = FULL_KEY_INDEX_NAME)

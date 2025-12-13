@@ -41,6 +41,7 @@ public class ConnectModulesTest {
             Assertions.assertTrue(isConnected);
         }
     }
+    
     @ParameterizedTest
     @CsvSource({
         // Environment with SocialBridge(0.3.0)
