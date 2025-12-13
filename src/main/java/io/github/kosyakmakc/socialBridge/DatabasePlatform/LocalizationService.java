@@ -35,8 +35,8 @@ public class LocalizationService {
             return CompletableFuture.completedFuture(localization);
         }
 
-        try {
-            return bridge.queryDatabase(databaseContext -> {
+        return bridge
+            .queryDatabase(databaseContext -> {
                 List<Localization> records;
                 try {
                     records = databaseContext.localizations.queryBuilder()
@@ -57,25 +57,24 @@ public class LocalizationService {
                 else {
                     return null;
                 }
-            }).thenApply(x -> {
+            })
+            .thenCompose(x -> {
                 if (x == null) {
                     if (!locale.equalsIgnoreCase(defaultLocale)) {
                         return getMessage(module, defaultLocale, key);
                     }
                 }
-                return x;
+                return CompletableFuture.completedStage(x);
             })
             .thenApply(x -> {
-                var localization2 = x instanceof String y ? y : key.key();
+                var localization2 = x != null ? x : key.key();
                 appendToCache(module, locale, key, localization2);
                 return localization2;
+            })
+            .exceptionally(error -> {
+                logger.log(Level.SEVERE, "failed localization search", error);
+                return "internal database error";
             });
-        }
-        catch (Exception error) {
-            logger.log(Level.SEVERE, "failed localization search", error);
-            return CompletableFuture.completedFuture("internal database error");
-            
-        }
     }
 
     private String searchByCache(IBridgeModule module, String locale, MessageKey key) {
