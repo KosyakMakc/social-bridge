@@ -1,5 +1,5 @@
 name: SocialBridge-paper
-version: '0.3.0'
+version: '0.3.2'
 main: io.github.kosyakmakc.socialBridge.paper.AuthBridgePaper
 api-version: '1.21'
 authors: [ kosyakmakc ]

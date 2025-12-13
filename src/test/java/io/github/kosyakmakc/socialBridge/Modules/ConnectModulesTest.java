@@ -20,11 +20,11 @@ import io.github.kosyakmakc.socialBridge.Utils.Version;
 public class ConnectModulesTest {
     @ParameterizedTest
     @CsvSource({
-        // Environment with SocialBridge(0.3.0)
-        "0.3.0, false", // is the same version
-        "0.3.1, false", // module just have a little bug-fix or new functionality
-        "0.3.2, false", // module just have a little bug-fix or new functionality
-        "0.3.20, false", // module just have a little bug-fix or new functionality
+        // Environment with SocialBridge(0.3.2)
+        "0.3.0", // is the same version
+        "0.3.1", // module just have a little bug-fix or new functionality
+        "0.3.2", // module just have a little bug-fix or new functionality
+        "0.3.20", // module just have a little bug-fix or new functionality
     })
     void checkModuleVersionCompability(String moduleVersion) throws SQLException, IOException {
         HeadlessMinecraftPlatform.Init();
@@ -44,7 +44,7 @@ public class ConnectModulesTest {
     
     @ParameterizedTest
     @CsvSource({
-        // Environment with SocialBridge(0.3.0)
+        // Environment with SocialBridge(0.3.2)
         "0.4.0", // module have new breaking-changes api, DON'T CONNECT
         "0.4.1", // module have new breaking-changes api, DON'T CONNECT
         "0.4.99", // module have new breaking-changes api, DON'T CONNECT
