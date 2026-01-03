@@ -17,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
-    public static final Version VERSION = new Version("0.4.2");
+    public static final Version VERSION = new Version("0.4.3");
     private LinkedBlockingQueue<IBridgeModule> registeredModules = new LinkedBlockingQueue<>();
     private HashMap<UUID, HashMap<String, String>> config = new HashMap<>();
 

@@ -169,7 +169,8 @@ public class LocalizationService {
                             languageCache.put(record.key(), record.localization());
                         }
                         catch (SQLException error) {
-                            if (error.getCause() instanceof SQLException innerException && innerException.getSQLState() == "23505") {
+                            if (error.getCause() instanceof SQLException innerException
+                             && innerException.getMessage().equals("[SQLITE_CONSTRAINT_UNIQUE] A UNIQUE constraint failed (UNIQUE constraint failed: localization.module, localization.language, localization.key)")) {
                                 // do nothing
                             }
                             else {
