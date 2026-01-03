@@ -22,7 +22,7 @@ public class English implements ITranslationSource {
                 new LocalizationRecord(MessageKey.INVALID_ARGUMENT_NOT_A_INTEGER.key(), "Argument is not a 32-bit integer."),
                 new LocalizationRecord(MessageKey.INVALID_ARGUMENT_NOT_A_LONG.key(), "Argument is not a 64-bit integer."),
                 new LocalizationRecord(MessageKey.INVALID_ARGUMENT_NOT_A_FLOAT.key(), "Argument is not a 32-bit float number."),
-                new LocalizationRecord(MessageKey.INVALID_ARGUMENT_NOT_A_DOUBLE.key(), "Argument is not a 64-bit float number(double)."),
+                new LocalizationRecord(MessageKey.INVALID_ARGUMENT_NOT_A_DOUBLE.key(), "Argument is not a 64-bit float number."),
                 new LocalizationRecord(MessageKey.EMPTY.key(), "")
         );
     }

@@ -135,7 +135,7 @@ public class SocialBridge implements ISocialBridge {
                 });
         }
         else {
-            logger.severe("social platform '" + socialPlatform.getPlatformName() + "' have incompatible social-bridge API, ignoring it...");
+            logger.severe("social platform '" + socialPlatform.getPlatformName() + "' have incompatible SocialBridge API, ignoring it...");
             return CompletableFuture.completedFuture(false);
         }
     }
@@ -215,7 +215,7 @@ public class SocialBridge implements ISocialBridge {
                 });
         }
         else {
-            logger.severe("module '" + module.getName() + "' have incompatible social-bridge API, ignoring it...");
+            logger.severe("module '" + module.getName() + "' have incompatible SocialBridge API, ignoring it...");
             return CompletableFuture.completedFuture(false);
         }
     }

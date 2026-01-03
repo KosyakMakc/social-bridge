@@ -4,6 +4,7 @@ import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCo
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.ISocialCommand;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.English;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.ITranslationSource;
+import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.Russian;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IModuleLoader;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
@@ -15,11 +16,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class DefaultModule implements IBridgeModule {
     public static final UUID MODULE_ID = UUID.fromString("dcab3770-b24e-44bb-b9a9-19edf96b9986");
-    public static final String MODULE_NAME = "SocialBridge";
-    public static final List<ITranslationSource> translationSources = List.of(new English());
+    public static final String MODULE_NAME = "socialbridge";
+
+    public static final List<ITranslationSource> translationSources = List.of(
+        new English(),
+        new Russian()
+    );
+
     public static final List<IMinecraftCommand> minecraftCommands = List.of();
+
     public static final List<ISocialCommand> socialCommands = List.of();
-    
+
     public final Version compabilityVersion;
     private final IModuleLoader loader;
 

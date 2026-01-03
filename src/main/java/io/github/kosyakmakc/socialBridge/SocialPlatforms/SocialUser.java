@@ -1,6 +1,7 @@
 package io.github.kosyakmakc.socialBridge.SocialPlatforms;
 
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class SocialUser {
     private final ISocialPlatform platform;
@@ -17,6 +18,6 @@ public abstract class SocialUser {
     public abstract String getName();
     public abstract String getLocale();
 
-    public abstract void sendMessage(String message, HashMap<String, String> placeholders);
+    public abstract CompletableFuture<Boolean> sendMessage(String message, HashMap<String, String> placeholders);
 
 }

@@ -70,6 +70,7 @@ public class ModuleForTest implements IBridgeModule, AutoCloseable {
         socialCommands.put(socialCommand.getClass(), socialCommand);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ISocialCommand> T getSocialCommand(Class<T> tClass) {
         var socialCommand = socialCommands.getOrDefault(tClass, null);
         if (socialCommand != null) {
@@ -92,6 +93,7 @@ public class ModuleForTest implements IBridgeModule, AutoCloseable {
         minecraftCommands.put(minecraftCommand.getClass(), minecraftCommand);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends IMinecraftCommand> T getMinecraftCommand(Class<T> tClass) {
         var minecraftCommand = minecraftCommands.getOrDefault(tClass, null);
         if (minecraftCommand != null) {
@@ -114,6 +116,7 @@ public class ModuleForTest implements IBridgeModule, AutoCloseable {
         translations.put(translationSource.getClass(), translationSource);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ITranslationSource> T getTranslation(Class<T> tClass) {
         var translationSource = translations.getOrDefault(tClass, null);
         if (translationSource != null) {
