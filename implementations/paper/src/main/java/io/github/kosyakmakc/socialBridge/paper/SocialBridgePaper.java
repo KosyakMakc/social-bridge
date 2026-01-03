@@ -34,13 +34,13 @@ import java.util.logging.Logger;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
-public final class AuthBridgePaper extends JavaPlugin implements IMinecraftPlatform {
+public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPlatform {
     private static final CommandArgument<String> systemWordArgument = CommandArgument.ofWord("/{pluginSuffix} {commandLiteral} [arguments, ...]");
 
     private final Version socialBridgVersion;
     private final ISocialBridge socialBridge;
 
-    public AuthBridgePaper() {
+    public SocialBridgePaper() {
         try {
             this.saveDefaultConfig();
             socialBridgVersion = new Version(this.getPluginMeta().getVersion());

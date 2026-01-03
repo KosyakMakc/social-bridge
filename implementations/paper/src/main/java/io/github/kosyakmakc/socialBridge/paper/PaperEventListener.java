@@ -5,7 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PaperEventListener implements Listener {
-    public PaperEventListener(AuthBridgePaper minecraftPlatform) {
+    public PaperEventListener(SocialBridgePaper minecraftPlatform) {
         minecraftPlatform.getServer().getPluginManager().registerEvents(this, minecraftPlatform);
     }
 

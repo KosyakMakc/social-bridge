@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public class BukkitMinecraftUser extends MinecraftUser {
@@ -39,8 +40,8 @@ public class BukkitMinecraftUser extends MinecraftUser {
     }
 
     @Override
-    public boolean HasPermission(String permission) {
-        return player.hasPermission(permission);
+    public CompletableFuture<Boolean> HasPermission(String permission) {
+        return CompletableFuture.completedFuture(player.hasPermission(permission));
     }
 
     @Override

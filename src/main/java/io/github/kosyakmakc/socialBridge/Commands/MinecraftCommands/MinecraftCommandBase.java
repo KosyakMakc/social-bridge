@@ -95,7 +95,7 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
         }
 
         var permissionNode = getPermission();
-        if (!permissionNode.isEmpty() && sender != null && !sender.HasPermission(permissionNode)) {
+        if (!permissionNode.isEmpty() && sender != null) {
             return;
         }
 
@@ -106,7 +106,11 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
             arguments.add(valueItem);
         }
 
-        execute(sender, arguments);
+        sender.HasPermission(permissionNode).thenAccept(hasPermission -> {
+            if (hasPermission) {
+                execute(sender, arguments);
+            }
+        });
     }
 
     protected ISocialBridge getBridge() {

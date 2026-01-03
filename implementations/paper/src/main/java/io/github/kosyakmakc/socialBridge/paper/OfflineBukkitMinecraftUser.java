@@ -2,7 +2,10 @@ package io.github.kosyakmakc.socialBridge.paper;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+
+import org.bukkit.Bukkit;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 
@@ -14,6 +17,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
+import net.luckperms.api.LuckPerms;
 
 public class OfflineBukkitMinecraftUser extends MinecraftUser {
     private final IMinecraftPlatform platform;
@@ -45,8 +49,17 @@ public class OfflineBukkitMinecraftUser extends MinecraftUser {
     }
 
     @Override
-    public boolean HasPermission(String permission) {
-        return false;
+    public CompletableFuture<Boolean> HasPermission(String permission) {
+        var provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+        if (provider != null) {
+            return provider
+                .getProvider()
+                .getUserManager()
+                .loadUser(playerId)
+                .thenApply(lpUser -> lpUser.getCachedData().getPermissionData().checkPermission(permission).asBoolean()); 
+        }
+
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override

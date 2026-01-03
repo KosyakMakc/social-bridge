@@ -1,6 +1,7 @@
-name: SocialBridge-paper
-version: '0.4.3'
+name: SocialBridge
+version: '0.5.0'
 main: io.github.kosyakmakc.socialBridge.paper.AuthBridgePaper
 api-version: '1.21'
 authors: [ kosyakmakc ]
+softdepend: [ LuckPerms ]
 folia-supported: true

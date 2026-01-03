@@ -17,13 +17,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
-    public static final Version VERSION = new Version("0.4.3");
+    public static final Version VERSION = new Version("0.5.0");
     private LinkedBlockingQueue<IBridgeModule> registeredModules = new LinkedBlockingQueue<>();
     private HashMap<UUID, HashMap<String, String>> config = new HashMap<>();
 
     @Override
     public Path getDataDirectory() {
-        return Path.of(System.getProperty("java.io.tmpdir"), "social-bridge", UUID.randomUUID().toString());
+        return Path.of(System.getProperty("java.io.tmpdir"), "SocialBridge", UUID.randomUUID().toString());
     }
 
     @Override
