@@ -27,6 +27,7 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -58,9 +59,12 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
 
     @Override
     public void onDisable() {
+        var socialPlatforms = List.copyOf(socialBridge.getSocialPlatforms());
+        var modules = List.copyOf(socialBridge.getModules());
+
         CompletableFuture
-            .allOf(socialBridge.getSocialPlatforms().stream().map(x -> socialBridge.disconnectSocialPlatform(x)).toArray(CompletableFuture[]::new))
-            .thenCompose(Void -> CompletableFuture.allOf(socialBridge.getModules().stream().map(x -> socialBridge.disconnectModule(x)).toArray(CompletableFuture[]::new)))
+            .allOf(socialPlatforms.stream().map(x -> socialBridge.disconnectSocialPlatform(x)).toArray(CompletableFuture[]::new))
+            .thenCompose(Void -> CompletableFuture.allOf(modules.stream().map(x -> socialBridge.disconnectModule(x)).toArray(CompletableFuture[]::new)))
             .join();
     }
 
