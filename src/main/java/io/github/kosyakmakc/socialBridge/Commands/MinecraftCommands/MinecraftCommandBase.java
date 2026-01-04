@@ -94,11 +94,6 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
             return;
         }
 
-        var permissionNode = getPermission();
-        if (!permissionNode.isEmpty() && sender != null) {
-            return;
-        }
-
         var arguments = new LinkedList<>();
 
         for (var argument : getArgumentDefinitions()) {
@@ -106,11 +101,21 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
             arguments.add(valueItem);
         }
 
-        sender.hasPermission(permissionNode).thenAccept(hasPermission -> {
-            if (hasPermission) {
-                execute(sender, arguments);
+        var permissionNode = getPermission();
+        if (permissionNode.isEmpty()) {
+            execute(sender, arguments);
+        }
+        else {
+            if (sender == null) {
+                return;
             }
-        });
+
+            sender.hasPermission(permissionNode).thenAccept(hasPermission -> {
+                if (hasPermission) {
+                    execute(sender, arguments);
+                }
+            });
+        }
     }
 
     protected ISocialBridge getBridge() {

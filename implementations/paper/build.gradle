@@ -32,6 +32,7 @@ tasks {
         minecraftVersion("1.21.8")
         downloadPlugins {
             github("kosyakmakc", "SocialBridge-telegram", "0.5.2", "SocialBridge-telegram-paper-0.5.2.jar")
+            github("kosyakmakc", "AuthSocial", "0.5.1", "AuthSocial-paper-0.5.1.jar")
         }
     }
 }
