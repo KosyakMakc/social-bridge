@@ -57,6 +57,6 @@ public class BukkitMinecraftUser extends MinecraftUser {
 
         var builtMessage = builder.build().deserialize(message);
         player.sendMessage(builtMessage);
-        logger.info("message to '" + this.getName() + "' - " + builtMessage.toString());
+        logger.info("message to '" + this.getName() + "' - " + MiniMessage.miniMessage().serialize(builtMessage));
     }
 }

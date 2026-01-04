@@ -73,7 +73,7 @@ public class OfflineBukkitMinecraftUser extends MinecraftUser {
             builder.editTags(x -> x.resolver(Placeholder.component(placeholderKey, Component.text(placeholders.get(placeholderKey)))));
         }
 
-        var builtMessage = builder.build().deserialize(message).toString();
-        logger.info("message to '" + this.getName() + "' - " + builtMessage);
+        var builtMessage = builder.build().deserialize(message);
+        logger.info("message to '" + this.getName() + "' - " + MiniMessage.miniMessage().serialize(builtMessage));
     }
 }
