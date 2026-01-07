@@ -17,9 +17,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
-    public static final Version VERSION = new Version("0.5.0");
+    public static final String PLATFORM_NAME = "headless";
+    public static final UUID PLATFORM_ID = UUID.fromString("c936579c-da7e-47dd-be85-d93f0558fab1");
+
+    public static final Version VERSION = new Version("0.5.3");
     private LinkedBlockingQueue<ISocialModule> registeredModules = new LinkedBlockingQueue<>();
     private HashMap<UUID, HashMap<String, String>> config = new HashMap<>();
+    private final UUID instanceId = UUID.randomUUID();
+
+    @Override
+    public String getPlatformName() {
+        return PLATFORM_NAME;
+    }
+
+    @Override
+    public UUID getId() {
+        return PLATFORM_ID;
+    }
+
+    @Override
+    public UUID getInstanceId() {
+        return instanceId;
+    }
 
     @Override
     public Path getDataDirectory() {

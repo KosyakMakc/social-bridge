@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -24,9 +25,11 @@ public class SocialBridge implements ISocialBridge {
 
     private final IMinecraftPlatform minecraftPlatform;
     @SuppressWarnings("rawtypes")
-    private final Map<Class, ISocialPlatform> socialPlatforms;
+    private final Map<Class, ISocialPlatform> socialPlatformsByClass;
+    private final Map<UUID, ISocialPlatform> socialPlatformsById;
     @SuppressWarnings("rawtypes")
-    private final Map<Class, ISocialModule> bridgeModules;
+    private final Map<Class, ISocialModule> modulesByClass;
+    private final Map<UUID, ISocialModule> modulesById;
     private final DatabaseContext databaseContext;
 
     private final ConfigurationService configurationService;
@@ -38,8 +41,10 @@ public class SocialBridge implements ISocialBridge {
         LoggerFactory.setLogBackendFactory(LogBackendType.NULL);
 
         minecraftPlatform = mcPlatform;
-        socialPlatforms = new HashMap<>();
-        bridgeModules = new HashMap<>();
+        socialPlatformsByClass = new HashMap<>();
+        socialPlatformsById = new HashMap<>();
+        modulesByClass = new HashMap<>();
+        modulesById = new HashMap<>();
 
         var defaultModule = new DefaultModule(mcPlatform);
 
@@ -78,19 +83,24 @@ public class SocialBridge implements ISocialBridge {
 
     @Override
     public Collection<ISocialPlatform> getSocialPlatforms() {
-        return socialPlatforms.values();
+        return socialPlatformsByClass.values();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends ISocialPlatform> T getSocialPlatform(Class<T> tClass) {
-        var platform = socialPlatforms.getOrDefault(tClass, null);
+        var platform = socialPlatformsByClass.getOrDefault(tClass, null);
         if (platform != null) {
             return (T) platform;
         }
         else {
             return null;
         }
+    }
+
+    @Override
+    public ISocialPlatform getSocialPlatform(UUID socialPlatformId) {
+        return socialPlatformsById.getOrDefault(socialPlatformId, null);
     }
 
     @Override
@@ -123,7 +133,8 @@ public class SocialBridge implements ISocialBridge {
                         throw new CancellationException("social platform '" + socialPlatform.getPlatformName() + "' canceled the activation");
                     }
 
-                    socialPlatforms.put(socialPlatform.getClass(), socialPlatform);
+                    socialPlatformsByClass.put(socialPlatform.getClass(), socialPlatform);
+                    socialPlatformsById.put(socialPlatform.getId(), socialPlatform);
                 })
                 .thenCompose(Void -> connectModulesToSocialPlatorm(socialPlatform))
                 .thenCompose(Void -> events.socialPlatformConnect.invoke(socialPlatform))
@@ -145,6 +156,14 @@ public class SocialBridge implements ISocialBridge {
         var matcher = socialPlatformNameValidation.matcher(name);
         if (matcher.find()) {
             throw new RuntimeException("Invalid social platform name, please don't use whitespaces, escape symbol and quotas");
+        }
+
+        if (socialPlatformsByClass.getOrDefault(socialPlatform.getClass(), null) != null) {
+            throw new RuntimeException("Duplication java class of social platform detected");
+        }
+
+        if (socialPlatformsById.getOrDefault(socialPlatform.getId(), null) != null) {
+            throw new RuntimeException("Duplication social platform UUID detected");
         }
     }
 
@@ -168,7 +187,8 @@ public class SocialBridge implements ISocialBridge {
         var logger = getLogger();
         logger.info("disconnect social platform '" + socialPlatform.getPlatformName() + "' (" +  socialPlatform.getCompabilityVersion().toString() + ")");
 
-        if (socialPlatforms.remove(socialPlatform.getClass(), socialPlatform)) {
+        if (socialPlatformsByClass.remove(socialPlatform.getClass(), socialPlatform)) {
+            socialPlatformsById.remove(socialPlatform.getId(), socialPlatform);
             return socialPlatform
                 .disable()
                 .thenCompose(Void -> events.socialPlatformDisconnect.invoke(socialPlatform))
@@ -207,7 +227,8 @@ public class SocialBridge implements ISocialBridge {
                 .thenCompose(Void -> connectModuleToSocialPlatforms(module))
                 .thenCompose(Void -> events.moduleConnect.invoke(module))
                 .thenApply(Void -> {
-                    bridgeModules.put(module.getClass(), module);
+                    modulesByClass.put(module.getClass(), module);
+                    modulesById.put(module.getId(), module);
                     logger.info("module '" + module.getName() + "' connected");
                     return true;
                 });
@@ -232,19 +253,24 @@ public class SocialBridge implements ISocialBridge {
     private static final Pattern translationKeyValidation = Pattern.compile("^[a-zA-Z_]+$");
 
     private void ValidateAndThrowModule(ISocialModule module) {
+        var name = module.getName();
         for (var existedModule : getModules()) {
-            if (existedModule.getId().equals(module.getId())) {
-                throw new RuntimeException("Duplication module UUID detected");
-            }
-            if (existedModule.getName().equals(module.getName())) {
+            if (existedModule.getName().equals(name)) {
                 throw new RuntimeException("Duplication module name detected");
             }
         }
-        
-        var name = module.getName();
+
         var matcher1 = moduleNameValidation.matcher(name);
         if (matcher1.find()) {
             throw new RuntimeException("Invalid module name, please don't use whitespaces, escape symbol, dash symbol, dot symbol and quotas");
+        }
+
+        if (modulesByClass.getOrDefault(module.getClass(), null) != null) {
+            throw new RuntimeException("Duplication java class of module detected");
+        }
+
+        if (modulesById.getOrDefault(module.getId(), null) != null) {
+            throw new RuntimeException("Duplication module UUID detected");
         }
 
         for (var socialCommand : module.getSocialCommands()) {
@@ -332,7 +358,8 @@ public class SocialBridge implements ISocialBridge {
         var logger = getLogger();
         logger.info("disconnect module '" + module.getName() + "' (" +  module.getCompabilityVersion().toString() + ")");
 
-        if (bridgeModules.remove(module.getClass(), module)) {
+        if (modulesByClass.remove(module.getClass(), module)) {
+            modulesById.remove(module.getId(), module);
             return disconnectModuleFromSocialPlatforms(module)
                 .thenCompose(Void -> disableMinecraftCommands(module))
                 .thenCompose(Void -> disableSocialCommands(module))
@@ -400,19 +427,23 @@ public class SocialBridge implements ISocialBridge {
 
     @Override
     public Collection<ISocialModule> getModules() {
-        return bridgeModules.values();
+        return modulesByClass.values();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends ISocialModule> T getModule(Class<T> tClass) {
-        var module = bridgeModules.getOrDefault(tClass, null);
+        var module = modulesByClass.getOrDefault(tClass, null);
         if (module != null) {
             return (T) module;
         }
         else {
             return null;
         }
+    }
+    @Override
+    public ISocialModule getModule(UUID moduleId) {
+        return modulesById.getOrDefault(moduleId, null);
     }
 
     @Override

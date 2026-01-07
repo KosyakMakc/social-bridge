@@ -8,6 +8,7 @@ import io.github.kosyakmakc.socialBridge.SocialPlatforms.ISocialPlatform;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -25,6 +26,7 @@ public interface ISocialBridge {
     CompletableFuture<Void> disconnectSocialPlatform(ISocialPlatform socialPlatform);
     Collection<ISocialPlatform> getSocialPlatforms();
     <T extends ISocialPlatform> T getSocialPlatform(Class<T> tClass);
+    ISocialPlatform getSocialPlatform(UUID socialPlatformId);
 
     IMinecraftPlatform getMinecraftPlatform();
 
@@ -32,4 +34,5 @@ public interface ISocialBridge {
     CompletableFuture<Void> disconnectModule(ISocialModule module);
     Collection<ISocialModule> getModules();
     <T extends ISocialModule> T getModule(Class<T> tClass);
+    ISocialModule getModule(UUID moduleId);
 }

@@ -34,17 +34,21 @@ public class Version {
         return patch;
     }
 
-    public boolean isCompatible(Version moduleVersion) {
+    public boolean isCompatible(Version compabilityVersion) {
         if (getMajor() == 0) {
-            // for alpha versioning minor token is MAJOR token :/
-            return getMajor() == moduleVersion.getMajor()
-                    && getMinor() == moduleVersion.getMinor();
+            // for alpha versioning minor token is MAJOR token and patch token is MINOR token :/
+            return getMajor() == compabilityVersion.getMajor()
+                    && getMinor() == compabilityVersion.getMinor()
+                    && getPatch() >= compabilityVersion.getPatch();
         }
         else {
             // major MUST be equal, because its marker for breaking changes
             // minor MUST be greater or equal, because module can use new functionality
-            return getMajor() == moduleVersion.getMajor()
-                    && getMinor() >= moduleVersion.getMinor();
+            // if major and minor are equal patch MUST be greater or equal
+            return getMajor() == compabilityVersion.getMajor()
+                    && (getMinor() == compabilityVersion.getMinor()
+                        ? getPatch() >= compabilityVersion.getPatch()
+                        : getMinor() > compabilityVersion.getMinor());
         }
     }
 
