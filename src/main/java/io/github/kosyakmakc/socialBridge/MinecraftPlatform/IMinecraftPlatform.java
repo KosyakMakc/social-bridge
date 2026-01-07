@@ -10,6 +10,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public interface IMinecraftPlatform extends IConfigurationService, IModuleLoader {
+    String getPlatformName();
+    UUID getId();
+    UUID getInstanceId();
+
     java.nio.file.Path getDataDirectory() throws IOException;
     Version getSocialBridgeVersion();
 

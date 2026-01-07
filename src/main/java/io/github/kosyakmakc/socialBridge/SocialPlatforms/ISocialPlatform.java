@@ -5,10 +5,12 @@ import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface ISocialPlatform {
     String getPlatformName();
+    UUID getId();
     Version getCompabilityVersion();
 
     CompletableFuture<Void> connectModule(ISocialModule module);

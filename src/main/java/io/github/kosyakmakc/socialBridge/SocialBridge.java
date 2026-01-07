@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class SocialBridge implements ISocialBridge {
-
     public static ISocialBridge INSTANCE;
 
     private final IMinecraftPlatform minecraftPlatform;
@@ -41,10 +40,9 @@ public class SocialBridge implements ISocialBridge {
         minecraftPlatform = mcPlatform;
         socialPlatforms = new HashMap<>();
         bridgeModules = new HashMap<>();
-        
-            
+
         var defaultModule = new DefaultModule(mcPlatform);
-        
+
         var connectionString = mcPlatform.get(defaultModule, "connectionString", null).join();
         if (connectionString == null) {
             throw new RuntimeException("failed connect to database, check connectionString in config");

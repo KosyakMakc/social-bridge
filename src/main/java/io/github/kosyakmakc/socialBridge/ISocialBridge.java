@@ -12,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public interface ISocialBridge {
-    Logger getLogger();
     Version getVersion();
 
+    Logger getLogger();
     LocalizationService getLocalizationService();
     ConfigurationService getConfigurationService();
     <T> CompletableFuture<T> queryDatabase(IDatabaseConsumer<T> action);

@@ -18,6 +18,7 @@ import io.github.kosyakmakc.socialBridge.Utils.Version;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -36,20 +37,55 @@ import java.util.logging.Logger;
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPlatform {
+    public static final String PLATFORM_NAME = "paper";
+    public static final UUID PLATFORM_ID = UUID.fromString("2a461647-2958-4e61-9429-12f0bb5c8d3c");
+
     private static final CommandArgument<String> systemWordArgument = CommandArgument.ofWord("/{pluginSuffix} {commandLiteral} [arguments, ...]");
 
     private final Version socialBridgVersion;
     private final ISocialBridge socialBridge;
+    private final UUID instanceId;
+
 
     public SocialBridgePaper() {
         try {
             this.saveDefaultConfig();
             socialBridgVersion = new Version(this.getPluginMeta().getVersion());
+
+            UUID localInstanceId;
+            try {
+                localInstanceId = UUID.fromString(this.get(DefaultModule.MODULE_ID, "instanceID", "").join());
+            }
+            catch (IllegalArgumentException err) {
+                localInstanceId = new UUID(0L, 0L);
+            }
+            if (localInstanceId.compareTo(new UUID(0L, 0L)) == 0) {
+                localInstanceId = UUID.randomUUID();
+                this.set(DefaultModule.MODULE_ID, "instanceID", localInstanceId.toString()).join();
+            }
+
+            instanceId = localInstanceId;
+
             SocialBridge.Init(this);
             socialBridge = SocialBridge.INSTANCE;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getPlatformName() {
+        return PLATFORM_NAME;
+    }
+
+    @Override
+    public UUID getId() {
+        return PLATFORM_ID;
+    }
+
+    @Override
+    public UUID getInstanceId() {
+        return instanceId;
     }
 
     @Override
