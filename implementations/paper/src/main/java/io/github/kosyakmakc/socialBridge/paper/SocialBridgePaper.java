@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
+import io.github.kosyakmakc.socialBridge.DatabasePlatform.IDatabaseTransaction;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.DefaultModule;
 import io.github.kosyakmakc.socialBridge.ISocialModule;
@@ -151,6 +152,10 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
             else {
                 getLogger().warning("Detected not supported module loader for '" + module.getName() + "' module.");
             }
+        })
+        .thenRun(() -> {
+            this.getServer().getOnlinePlayers().forEach(player -> player.updateCommands());
+            });
         });
     }
     
@@ -267,9 +272,20 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
             }
         });
     }
+
+    @Override
+    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, IDatabaseTransaction transaction) {
+        return get(module.getId(), parameter, defaultValue);
+    }
+
     @Override
     public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue) {
         return get(module.getId(), parameter, defaultValue);
+    }
+
+    @Override
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, IDatabaseTransaction transaction) {
+        return get(moduleId, parameter, defaultValue);
     }
 
     @Override
@@ -287,8 +303,18 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
+    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, IDatabaseTransaction transaction) {
+        return set(module.getId(), parameter, value);
+    }
+
+    @Override
     public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value) {
         return set(module.getId(), parameter, value);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, IDatabaseTransaction transaction) {
+        return set(moduleId, parameter, value);
     }
 
     @Override
