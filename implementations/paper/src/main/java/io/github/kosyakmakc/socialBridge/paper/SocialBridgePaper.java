@@ -155,7 +155,6 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
         })
         .thenRun(() -> {
             this.getServer().getOnlinePlayers().forEach(player -> player.updateCommands());
-            });
         });
     }
     
