@@ -1,6 +1,8 @@
 package io.github.kosyakmakc.socialBridge.DatabasePlatform;
 
-public record DatabaseTransaction(DatabaseContext context) implements IDatabaseTransaction {
+import io.github.kosyakmakc.socialBridge.ITransaction;
+
+public record DatabaseTransaction(DatabaseContext context) implements ITransaction {
     @Override
     public DatabaseContext getDatabaseContext() {
         return context;

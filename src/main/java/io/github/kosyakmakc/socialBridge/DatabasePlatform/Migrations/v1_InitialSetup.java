@@ -3,8 +3,8 @@ package io.github.kosyakmakc.socialBridge.DatabasePlatform.Migrations;
 import com.j256.ormlite.table.TableUtils;
 
 import io.github.kosyakmakc.socialBridge.DefaultModule;
+import io.github.kosyakmakc.socialBridge.ITransaction;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.ConfigurationService;
-import io.github.kosyakmakc.socialBridge.DatabasePlatform.IDatabaseTransaction;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables.ConfigRow;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables.Localization;
 
@@ -19,7 +19,7 @@ public class v1_InitialSetup implements IMigration {
     public int getVersion() { return 1; }
 
     @Override
-    public CompletableFuture<Void> accept(IDatabaseTransaction transaction) {
+    public CompletableFuture<Void> accept(ITransaction transaction) {
         try {
             var databaseContext = transaction.getDatabaseContext();
             var connectionSource = databaseContext.getConnectionSource();

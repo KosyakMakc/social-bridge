@@ -3,6 +3,7 @@ package io.github.kosyakmakc.socialBridge.DatabasePlatform;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables.ConfigRow;
 import io.github.kosyakmakc.socialBridge.DefaultModule;
 import io.github.kosyakmakc.socialBridge.ISocialModule;
+import io.github.kosyakmakc.socialBridge.ITransaction;
 import io.github.kosyakmakc.socialBridge.IConfigurationService;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 
@@ -28,7 +29,7 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, IDatabaseTransaction transaction) {
+    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, ITransaction transaction) {
         return get(module.getId(), parameter, defaultValue, transaction);
     }
 
@@ -38,7 +39,7 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     @Override
-    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, IDatabaseTransaction transaction) {
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
         try {
             var records = transaction.getDatabaseContext().configurations.queryBuilder()
                         .where()
@@ -65,7 +66,7 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, IDatabaseTransaction transaction) {
+    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, ITransaction transaction) {
         return set(module.getId(), parameter, value, transaction);
     }
 
@@ -77,7 +78,7 @@ public class ConfigurationService implements IConfigurationService {
         return bridge.queryDatabase(transaction -> set(moduleId, parameter, value, transaction));
     }
 
-    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, IDatabaseTransaction transaction) {
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, ITransaction transaction) {
         if (parameter.isBlank()) {
             throw new RuntimeException("Empty parameter name is not allowed");
         }

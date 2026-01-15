@@ -1,6 +1,7 @@
 package io.github.kosyakmakc.socialBridge.SocialPlatforms;
 
 import io.github.kosyakmakc.socialBridge.ISocialModule;
+import io.github.kosyakmakc.socialBridge.ITransaction;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
@@ -18,6 +19,7 @@ public interface ISocialPlatform {
 
     CompletableFuture<Boolean> sendMessage(SocialUser telegramUser, String message, HashMap<String, String> placeholders);
     CompletableFuture<SocialUser> tryGetUser(Identifier id);
+    CompletableFuture<SocialUser> tryGetUser(Identifier id, ITransaction transaction);
 
     CompletableFuture<Boolean> enable(ISocialBridge authBridge);
     CompletableFuture<Void> disable();

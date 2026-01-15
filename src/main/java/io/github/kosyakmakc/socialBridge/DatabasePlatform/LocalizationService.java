@@ -3,6 +3,8 @@ package io.github.kosyakmakc.socialBridge.DatabasePlatform;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.ITranslationSource;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.Tables.Localization;
 import io.github.kosyakmakc.socialBridge.ISocialModule;
+import io.github.kosyakmakc.socialBridge.ITransaction;
+import io.github.kosyakmakc.socialBridge.ILocalizationService;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
@@ -17,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LocalizationService {
+public class LocalizationService implements ILocalizationService {
     static public final String defaultLocale = Locale.US.getLanguage();
     private final Logger logger;
     private final ISocialBridge bridge;
@@ -29,6 +31,7 @@ public class LocalizationService {
         logger = Logger.getLogger(bridge.getLogger().getName() + '.' + LocalizationService.class.getSimpleName());
     }
 
+    @Override
     public CompletableFuture<String> getMessage(ISocialModule module, String locale, MessageKey key) {
         var localization = searchByCache(module, key.key(), key);
         if (localization != null) {
@@ -38,7 +41,8 @@ public class LocalizationService {
         return getMessageFromDatabase(module, locale, key);
     }
 
-    public CompletableFuture<String> getMessage(ISocialModule module, String locale, MessageKey key, IDatabaseTransaction transaction) {
+    @Override
+    public CompletableFuture<String> getMessage(ISocialModule module, String locale, MessageKey key, ITransaction transaction) {
         var localization = searchByCache(module, key.key(), key);
         if (localization != null) {
             return CompletableFuture.completedFuture(localization);
@@ -51,7 +55,7 @@ public class LocalizationService {
         return bridge.queryDatabase(transaction -> getMessageFromDatabase(module, locale, key, transaction));
     }
 
-    private CompletableFuture<String> getMessageFromDatabase(ISocialModule module, String locale, MessageKey key, IDatabaseTransaction transaction) {
+    private CompletableFuture<String> getMessageFromDatabase(ISocialModule module, String locale, MessageKey key, ITransaction transaction) {
             List<Localization> records;
             try {
                 records = transaction.getDatabaseContext().localizations.queryBuilder()
@@ -130,6 +134,7 @@ public class LocalizationService {
         }
     }
 
+    @Override
     public CompletableFuture<Void> restoreLocalizationsOfModule(ISocialModule module) {
         var moduleId = module.getId();
         logger.info("restoring localizations for module '" + module.getName() + "'");

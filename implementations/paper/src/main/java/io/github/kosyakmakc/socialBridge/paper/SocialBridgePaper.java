@@ -7,10 +7,10 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
-import io.github.kosyakmakc.socialBridge.DatabasePlatform.IDatabaseTransaction;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.DefaultModule;
 import io.github.kosyakmakc.socialBridge.ISocialModule;
+import io.github.kosyakmakc.socialBridge.ITransaction;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
@@ -273,7 +273,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, IDatabaseTransaction transaction) {
+    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, ITransaction transaction) {
         return get(module.getId(), parameter, defaultValue);
     }
 
@@ -283,7 +283,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, IDatabaseTransaction transaction) {
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
         return get(moduleId, parameter, defaultValue);
     }
 
@@ -302,7 +302,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, IDatabaseTransaction transaction) {
+    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, ITransaction transaction) {
         return set(module.getId(), parameter, value);
     }
 
@@ -312,7 +312,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, IDatabaseTransaction transaction) {
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, ITransaction transaction) {
         return set(moduleId, parameter, value);
     }
 

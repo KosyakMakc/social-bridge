@@ -33,7 +33,7 @@ public class SocialBridge implements ISocialBridge {
     private final DatabaseContext databaseContext;
 
     private final ConfigurationService configurationService;
-    private final LocalizationService localizationService;
+    private final ILocalizationService localizationService;
 
     private final BridgeEvents events = new BridgeEvents();
 
@@ -67,7 +67,7 @@ public class SocialBridge implements ISocialBridge {
     }
 
     @Override
-    public LocalizationService getLocalizationService() {
+    public ILocalizationService getLocalizationService() {
         return localizationService;
     }
 
@@ -85,7 +85,7 @@ public class SocialBridge implements ISocialBridge {
     }
 
     @Override
-    public <T> CompletableFuture<T> queryDatabase(IDatabaseConsumer<T> action, IDatabaseTransaction transaction) {
+    public <T> CompletableFuture<T> queryDatabase(IDatabaseConsumer<T> action, ITransaction transaction) {
         return action.accept(transaction);
     }
 
