@@ -39,6 +39,6 @@ repositories {
     }
 }
 dependencies {
-    compileOnly "io.github.kosyakmakc:SocialBridge:0.5.+"
+    compileOnly "io.github.kosyakmakc:SocialBridge:0.8.+"
 }
 ```
