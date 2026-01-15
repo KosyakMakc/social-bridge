@@ -31,8 +31,8 @@ tasks {
         // Your plugin's jar (or shadowJar if present) will be used automatically.
         minecraftVersion("1.21.8")
         downloadPlugins {
-            github("kosyakmakc", "SocialBridge-telegram", "0.5.2", "SocialBridge-telegram-paper-0.5.2.jar")
-            github("kosyakmakc", "AuthSocial", "0.5.1", "AuthSocial-paper-0.5.1.jar")
+            github("kosyakmakc", "SocialBridge-telegram", "0.8.0", "SocialBridge-telegram-paper-0.8.0.jar")
+            //github("kosyakmakc", "AuthSocial", "0.8.0", "AuthSocial-paper-0.8.0.jar")
         }
     }
 }

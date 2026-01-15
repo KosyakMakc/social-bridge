@@ -81,7 +81,7 @@ public class LocalizationService implements ILocalizationService {
             return task.thenCompose(x -> {
                 if (x == null) {
                     if (!locale.equalsIgnoreCase(defaultLocale)) {
-                        return getMessage(module, defaultLocale, key);
+                        return getMessage(module, defaultLocale, key, transaction);
                     }
                 }
                 return CompletableFuture.completedStage(x);
