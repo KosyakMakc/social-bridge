@@ -32,27 +32,19 @@ public class LocalizationService implements ILocalizationService {
     }
 
     @Override
-    public CompletableFuture<String> getMessage(ISocialModule module, String locale, MessageKey key) {
-        var localization = searchByCache(module, key.key(), key);
-        if (localization != null) {
-            return CompletableFuture.completedFuture(localization);
-        }
-
-        return getMessageFromDatabase(module, locale, key);
-    }
-
-    @Override
     public CompletableFuture<String> getMessage(ISocialModule module, String locale, MessageKey key, ITransaction transaction) {
         var localization = searchByCache(module, key.key(), key);
         if (localization != null) {
             return CompletableFuture.completedFuture(localization);
         }
 
-        return getMessageFromDatabase(module, locale, key, transaction);
+        return getMessageFromStorage(module, locale, key, transaction);
     }
 
-    private CompletableFuture<String> getMessageFromDatabase(ISocialModule module, String locale, MessageKey key) {
-        return bridge.queryDatabase(transaction -> getMessageFromDatabase(module, locale, key, transaction));
+    private CompletableFuture<String> getMessageFromStorage(ISocialModule module, String locale, MessageKey key, ITransaction transaction) {
+        return transaction == null
+            ? bridge.queryDatabase(transaction2 -> getMessageFromDatabase(module, locale, key, transaction2))
+            : getMessageFromDatabase(module, locale, key, transaction);
     }
 
     private CompletableFuture<String> getMessageFromDatabase(ISocialModule module, String locale, MessageKey key, ITransaction transaction) {
@@ -131,6 +123,55 @@ public class LocalizationService implements ILocalizationService {
         var existedLocalization = languageCache.getOrDefault(key.key(), null);
         if (existedLocalization == null) {
             languageCache.put(key.key(), localization);
+        }
+    }
+
+    @Override
+    public CompletableFuture<Boolean> setMessage(ISocialModule module, String locale, MessageKey key, String localization, ITransaction transaction) {
+        return transaction == null
+            ? bridge.queryDatabase(transaction2 -> setMessageToDatabase(module, locale, key, localization, transaction2))
+            : setMessageToDatabase(module, locale, key, localization, transaction);
+    }
+
+    private CompletableFuture<Boolean> setMessageToDatabase(ISocialModule module, String locale, MessageKey key, String localization, ITransaction transaction) {
+        var moduleId = module.getId();
+        logger.info("update localization for module '" + module.getName() + "' (lang=" + locale + " key=" + key.key() + ")");
+
+        try {
+            var databaseContext = transaction.getDatabaseContext();
+
+            var records = databaseContext.localizations.queryBuilder()
+                .where()
+                    .eq(Localization.MODULE_FIELD_NAME, module.getId())
+                    .and()
+                    .eq(Localization.LANGUAGE_FIELD_NAME, locale)
+                    .and()
+                    .eq(Localization.KEY_FIELD_NAME, key.key())
+                .query();
+
+            if (records.isEmpty()) {
+                databaseContext.localizations.create(
+                    new Localization(
+                        moduleId,
+                        locale,
+                        key.key(),
+                        localization
+                    )
+                );
+                appendToCache(module, locale, key, localization);
+            }
+            else {
+                var localizationRecord = records.getFirst();
+                localizationRecord.setLocalization(localization);
+                databaseContext.localizations.update(localizationRecord);
+                appendToCache(module, locale, key, localization);
+            }
+
+            return CompletableFuture.completedFuture(true);
+        }
+        catch (Exception error) {
+            error.printStackTrace();
+            return CompletableFuture.completedFuture(false);
         }
     }
 

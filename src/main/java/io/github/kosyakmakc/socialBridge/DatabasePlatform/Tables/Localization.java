@@ -62,4 +62,8 @@ public class Localization implements IDatabaseTable {
     public String getLocalization() {
         return localization;
     }
+
+    public void setLocalization(String localization) {
+        this.localization = localization;
+    }
 }
