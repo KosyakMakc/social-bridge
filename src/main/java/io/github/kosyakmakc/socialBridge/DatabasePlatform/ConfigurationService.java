@@ -24,22 +24,18 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue) {
-        return get(module.getId(), parameter, defaultValue);
-    }
-
-    @Override
     public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, ITransaction transaction) {
         return get(module.getId(), parameter, defaultValue, transaction);
     }
 
     @Override
-    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
-        return bridge.queryDatabase(transaction -> get(moduleId, parameter, defaultValue, transaction));
+    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
+        return transaction == null
+            ? bridge.queryDatabase(transaction2 -> getFromDatabase(moduleId, parameter, defaultValue, transaction2))
+            : getFromDatabase(moduleId, parameter, defaultValue, transaction);
     }
 
-    @Override
-    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
+    private CompletableFuture<String> getFromDatabase(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
         try {
             var records = transaction.getDatabaseContext().configurations.queryBuilder()
                         .where()
@@ -61,24 +57,22 @@ public class ConfigurationService implements IConfigurationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value) {
-        return set(module.getId(), parameter, value);
-    }
-
-    @Override
     public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, ITransaction transaction) {
         return set(module.getId(), parameter, value, transaction);
     }
 
-    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
+    @Override
+    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, ITransaction transaction) {
         if (parameter.isBlank()) {
             throw new RuntimeException("Empty parameter name is not allowed");
         }
 
-        return bridge.queryDatabase(transaction -> set(moduleId, parameter, value, transaction));
+        return transaction == null
+            ? bridge.queryDatabase(transaction2 -> set(moduleId, parameter, value, transaction2))
+            : setToDatabase(moduleId, parameter, value, transaction);
     }
 
-    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, ITransaction transaction) {
+    private CompletableFuture<Boolean> setToDatabase(UUID moduleId, String parameter, String value, ITransaction transaction) {
         if (parameter.isBlank()) {
             throw new RuntimeException("Empty parameter name is not allowed");
         }
@@ -107,8 +101,8 @@ public class ConfigurationService implements IConfigurationService {
         return CompletableFuture.completedFuture(false);
     }
 
-    public CompletableFuture<Integer> getDatabaseVersion() {
-        return get(DefaultModule.MODULE_ID, DATABASE_VERSION, "")
+    public CompletableFuture<Integer> getDatabaseVersion(ITransaction transaction) {
+        return get(DefaultModule.MODULE_ID, DATABASE_VERSION, "", transaction)
                .thenApply(rawVersion -> {
                    try {
                        return Integer.parseInt(rawVersion);

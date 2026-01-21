@@ -48,7 +48,7 @@ public class SocialBridge implements ISocialBridge {
 
         var defaultModule = new DefaultModule(mcPlatform);
 
-        var connectionString = mcPlatform.get(defaultModule, "connectionString", null).join();
+        var connectionString = mcPlatform.get(defaultModule, "connectionString", null, null).join();
         if (connectionString == null) {
             throw new RuntimeException("failed connect to database, check connectionString in config");
         }

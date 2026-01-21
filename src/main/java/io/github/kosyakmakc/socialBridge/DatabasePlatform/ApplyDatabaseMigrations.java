@@ -21,7 +21,7 @@ public class ApplyDatabaseMigrations implements Consumer<ISocialBridge> {
         var logger = bridge.getLogger();
         var configurationService = bridge.getConfigurationService();
 
-        var databaseVersion = configurationService.getDatabaseVersion().join();
+        var databaseVersion = configurationService.getDatabaseVersion(null).join();
         var latestDatabaseVersion = Arrays.stream(migrations).max(Comparator.comparingInt(IMigration::getVersion)).get().getVersion();
 
         if (databaseVersion < latestDatabaseVersion) {

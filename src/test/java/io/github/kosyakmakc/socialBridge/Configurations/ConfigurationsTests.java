@@ -24,8 +24,8 @@ public class ConfigurationsTests {
         HeadlessMinecraftPlatform.Init();
         var service = SocialBridge.INSTANCE.getConfigurationService();
 
-        service.set(DefaultModule.MODULE_ID, name, value).join();
-        Assertions.assertEquals(value, service.get(DefaultModule.MODULE_ID, name, "").join());
+        service.set(DefaultModule.MODULE_ID, name, value, null).join();
+        Assertions.assertEquals(value, service.get(DefaultModule.MODULE_ID, name, "", null).join());
     }
 
     @ParameterizedTest
@@ -39,8 +39,8 @@ public class ConfigurationsTests {
         HeadlessMinecraftPlatform.Init();
         var service = SocialBridge.INSTANCE.getConfigurationService();
 
-        service.set(DefaultModule.MODULE_ID, name, value).join();
-        Assertions.assertEquals(value, service.get(DefaultModule.MODULE_ID, name, "").join());
+        service.set(DefaultModule.MODULE_ID, name, value, null).join();
+        Assertions.assertEquals(value, service.get(DefaultModule.MODULE_ID, name, "", null).join());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ConfigurationsTests {
 
         var defaultValue = UUID.randomUUID().toString();
 
-        Assertions.assertEquals(defaultValue, service.get(DefaultModule.MODULE_ID, "__Test__" + UUID.randomUUID().toString(), defaultValue).join());
+        Assertions.assertEquals(defaultValue, service.get(DefaultModule.MODULE_ID, "__Test__" + UUID.randomUUID().toString(), defaultValue, null).join());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ConfigurationsTests {
         var service = SocialBridge.INSTANCE.getConfigurationService();
 
         Assertions.assertThrows(RuntimeException.class, () -> {
-            service.set(DefaultModule.MODULE_ID, "", "test").join();
+            service.set(DefaultModule.MODULE_ID, "", "test", null).join();
         });
     }
 }
