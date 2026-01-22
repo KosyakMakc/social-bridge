@@ -6,6 +6,8 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
+import io.github.kosyakmakc.socialBridge.Commands.Arguments.ICommandArgumentNumeric;
+import io.github.kosyakmakc.socialBridge.Commands.Arguments.ICommandArgumentString;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.DefaultModule;
@@ -203,7 +205,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
         };
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private RequiredArgumentBuilder<CommandSourceStack, ?> BuildArgumentNode(CommandArgument argument) {
         var commandName = argument.getName();
         var dataType = argument.getDataType();
@@ -211,28 +213,24 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
         return switch (dataType) {
             case Boolean -> Commands
                     .argument(commandName, BoolArgumentType.bool())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentString) argument));
             case Integer -> Commands
-                    .argument(commandName, IntegerArgumentType.integer())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, IntegerArgumentType.integer(((ICommandArgumentNumeric<Integer>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
             case Long -> Commands
-                    .argument(commandName, LongArgumentType.longArg())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, LongArgumentType.longArg(((ICommandArgumentNumeric<Long>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
             case Float -> Commands
-                    .argument(commandName, FloatArgumentType.floatArg())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, FloatArgumentType.floatArg(((ICommandArgumentNumeric<Float>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
             case Double -> Commands
-                    .argument(commandName, DoubleArgumentType.doubleArg())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, DoubleArgumentType.doubleArg(((ICommandArgumentNumeric<Double>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
             case Word -> Commands
                     .argument(commandName, StringArgumentType.word())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentString) argument));
             case String -> Commands
                     .argument(commandName, StringArgumentType.string())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentString) argument));
             case GreedyString -> Commands
                     .argument(commandName, StringArgumentType.greedyString())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentString) argument));
         };
     }
 

@@ -6,11 +6,15 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-class DoubleCommandArgument extends CommandArgument<Double> {
+class DoubleCommandArgument extends CommandArgument<Double> implements ICommandArgumentNumeric<Double> {
     private final String name;
+    private final Double minimum;
+    private final Double maximum;
 
-    public DoubleCommandArgument(String name) {
+    public DoubleCommandArgument(String name, Double minimum, Double maximum) {
         this.name = name;
+        this.minimum = minimum;
+        this.maximum = maximum;
     }
 
     @Override
@@ -21,11 +25,6 @@ class DoubleCommandArgument extends CommandArgument<Double> {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String[] getAutoCompletes() {
-        return new String[0];
     }
     
     @Override
@@ -52,5 +51,15 @@ class DoubleCommandArgument extends CommandArgument<Double> {
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_DOUBLE);
         }
+    }
+
+    @Override
+    public Double getMin() {
+        return minimum;
+    }
+
+    @Override
+    public Double getMax() {
+        return maximum;
     }
 }

@@ -4,29 +4,29 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
+import io.github.kosyakmakc.socialBridge.Commands.Arguments.ICommandArgumentString;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 import java.util.concurrent.CompletableFuture;
 
 public class BridgeCommandSuggestionProvider implements SuggestionProvider<CommandSourceStack> {
+    private final ICommandArgumentString argument;
 
-    @SuppressWarnings("rawtypes")
-    private final CommandArgument argument;
-
-    @SuppressWarnings("rawtypes")
-    public BridgeCommandSuggestionProvider(CommandArgument argument) {
+    public BridgeCommandSuggestionProvider(ICommandArgumentString argument) {
         this.argument = argument;
     }
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
 
-        for (var suggest : argument.getAutoCompletes()) {
-            builder.suggest(suggest);
-        }
+        return argument.getAutoCompletes()
+            .thenCompose(suggestions -> {
+                for (var suggest : (String[]) suggestions) {
+                    builder.suggest(suggest);
+                }
 
-        return builder.buildFuture();
+                return builder.buildFuture();
+            });
     }
 
 }

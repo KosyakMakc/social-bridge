@@ -5,12 +5,16 @@ import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
-class WordCommandArgument extends CommandArgument<String> {
+class WordCommandArgument extends CommandArgument<String> implements ICommandArgumentString {
     private final String name;
+    private final Supplier<CompletableFuture<String[]>> suggestionProvider;
 
-    public WordCommandArgument(String name) {
+    public WordCommandArgument(String name, Supplier<CompletableFuture<String[]>> suggestionProvider) {
         this.name = name;
+        this.suggestionProvider = suggestionProvider;
     }
 
     @Override
@@ -24,8 +28,8 @@ class WordCommandArgument extends CommandArgument<String> {
     }
 
     @Override
-    public String[] getAutoCompletes() {
-        return new String[0];
+    public CompletableFuture<String[]> getAutoCompletes() {
+        return suggestionProvider.get();
     }
 
     @Override
