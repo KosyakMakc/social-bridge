@@ -1,9 +1,12 @@
 package io.github.kosyakmakc.socialBridge.Commands;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
+import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ModuleForTest;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessSocialMessage;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessSocialUser;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleWordStringCommand;
 
 import org.junit.jupiter.api.Assertions;
@@ -11,7 +14,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.sql.SQLException;
 
 public class WordArgumentsTest {
@@ -42,7 +44,7 @@ public class WordArgumentsTest {
                 SocialBridge.INSTANCE.connectModule(module);
                 
                 command.prepareAnswer(answer);
-                command.handle(null, new StringReader(raw));
+                command.handle(new SocialCommandExecutionContext(new HeadlessSocialMessage(HeadlessSocialUser.Alex, raw)));
                 
                 if (isError) {
                     Assertions.fail("MUST failed | " + answer + " | " + raw + " | " + isError);

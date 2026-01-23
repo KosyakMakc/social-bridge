@@ -4,7 +4,6 @@ import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatExcept
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
-import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 import java.io.StringReader;
@@ -71,14 +70,21 @@ public abstract class SocialCommandBase implements ISocialCommand {
         return logger;
     }
 
-    public abstract void execute(SocialUser sender, List<Object> args);
+    public abstract void execute(SocialCommandExecutionContext context, List<Object> args);
 
     @Override
-    public void handle(SocialUser sender, StringReader argsReader) throws ArgumentFormatException {
+    public void handle(SocialCommandExecutionContext context) throws ArgumentFormatException {
         if (bridge == null) {
             Logger.getGlobal().info(this.getClass().getName() + " - initialization failed, skip handling");
             return;
         }
+
+        var message = context.getMessage().getStringMessage();
+        if (message == null) {
+            message = "";
+        }
+
+        var argsReader = new StringReader(message);
 
         var arguments = new LinkedList<>();
 
@@ -87,7 +93,7 @@ public abstract class SocialCommandBase implements ISocialCommand {
             arguments.add(valueItem);
         }
 
-        execute(sender, arguments);
+        execute(context, arguments);
     }
 
     protected ISocialBridge getBridge() {

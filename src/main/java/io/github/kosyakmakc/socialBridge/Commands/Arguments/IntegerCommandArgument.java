@@ -47,7 +47,11 @@ class IntegerCommandArgument extends CommandArgument<Integer> implements IComman
         }
 
         try {
-            return (int) Double.parseDouble(wordWriter.toString());
+            var value = (int) Double.parseDouble(wordWriter.toString());
+            if (value < minimum && value > maximum) {
+                throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_MIN_MAX_ERROR);
+            }
+            return value;
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_INTEGER);
         }

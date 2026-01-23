@@ -47,7 +47,12 @@ class LongCommandArgument extends CommandArgument<Long> implements ICommandArgum
         }
 
         try {
-            return Long.parseLong(wordWriter.toString());
+            var value = Long.parseLong(wordWriter.toString());
+            if (value < minimum && value > maximum) {
+                throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_MIN_MAX_ERROR);
+            }
+            return value;
+
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_LONG);
         }

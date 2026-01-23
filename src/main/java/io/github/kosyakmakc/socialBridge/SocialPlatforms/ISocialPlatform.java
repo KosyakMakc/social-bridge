@@ -18,9 +18,8 @@ public interface ISocialPlatform {
     CompletableFuture<Void> disconnectModule(ISocialModule module);
 
     CompletableFuture<Boolean> sendMessage(SocialUser telegramUser, String message, HashMap<String, String> placeholders);
-    CompletableFuture<SocialUser> tryGetUser(Identifier id);
     CompletableFuture<SocialUser> tryGetUser(Identifier id, ITransaction transaction);
 
-    CompletableFuture<Boolean> enable(ISocialBridge authBridge);
+    CompletableFuture<Boolean> enable(ISocialBridge socialBridge);
     CompletableFuture<Void> disable();
 }

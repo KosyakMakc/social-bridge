@@ -26,7 +26,7 @@ class BooleanCommandArgument extends CommandArgument<Boolean> implements IComman
 
     @Override
     public CompletableFuture<String[]> getAutoCompletes() {
-        return CompletableFuture.completedFuture(new String[] { "True", "False"});
+        return CompletableFuture.completedFuture(new String[] { "True", "False" });
     }
 
     @Override

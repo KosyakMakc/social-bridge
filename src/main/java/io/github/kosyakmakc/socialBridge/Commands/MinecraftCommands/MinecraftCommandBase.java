@@ -3,7 +3,6 @@ package io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
-import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
 import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import io.github.kosyakmakc.socialBridge.Utils.Permissions;
@@ -88,14 +87,18 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
         return argumentDefinition;
     }
 
-    public abstract void execute(MinecraftUser sender, List<Object> args);
+    public abstract void execute(MinecraftCommandExecutionContext context, List<Object> args);
 
     @Override
-    public void handle(MinecraftUser sender, StringReader argsReader) throws ArgumentFormatException {
+    public void handle(MinecraftCommandExecutionContext context) throws ArgumentFormatException {
         if (bridge == null) {
             Logger.getGlobal().warning(this.getClass().getName() + " - initialization failed, skip handling");
             return;
         }
+
+        var sender = context.getSender();
+        var message = context.getMessage();
+        var argsReader = new StringReader(message);
 
         var arguments = new LinkedList<>();
 
@@ -106,7 +109,7 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
         var permissionNode = getPermission();
         if (permissionNode.isEmpty()) {
-            execute(sender, arguments);
+            execute(context, arguments);
         }
         else {
             if (sender == null) {
@@ -115,7 +118,7 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
             sender.hasPermission(permissionNode).thenAccept(hasPermission -> {
                 if (hasPermission) {
-                    execute(sender, arguments);
+                    execute(context, arguments);
                 }
             });
         }

@@ -47,7 +47,11 @@ class FloatCommandArgument extends CommandArgument<Float> implements ICommandArg
         }
 
         try {
-            return Float.parseFloat(wordWriter.toString());
+            var value = Float.parseFloat(wordWriter.toString());
+            if (value < minimum && value > maximum) {
+                throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_MIN_MAX_ERROR);
+            }
+            return value;
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_FLOAT);
         }

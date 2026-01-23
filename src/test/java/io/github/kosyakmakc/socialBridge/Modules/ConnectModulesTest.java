@@ -10,9 +10,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.MinecraftCommandBase;
+import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.MinecraftCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
-import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
-import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ModuleForTest;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
@@ -142,7 +142,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addMinecraftCommand(new MinecraftCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(MinecraftUser sender, List<Object> args) { }
+                public void execute(MinecraftCommandExecutionContext context, List<Object> args) { }
                 
             });
             
@@ -165,7 +165,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addMinecraftCommand(new MinecraftCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(MinecraftUser sender, List<Object> args) { }
+                public void execute(MinecraftCommandExecutionContext context, List<Object> args) { }
                 
             });
             
@@ -194,7 +194,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addSocialCommand(new SocialCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(SocialUser sender, List<Object> args) { }
+                public void execute(SocialCommandExecutionContext context, List<Object> args) { }
                 
             });
             
@@ -217,7 +217,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addSocialCommand(new SocialCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(SocialUser sender, List<Object> args) { }
+                public void execute(SocialCommandExecutionContext context, List<Object> args) { }
                 
             });
             
