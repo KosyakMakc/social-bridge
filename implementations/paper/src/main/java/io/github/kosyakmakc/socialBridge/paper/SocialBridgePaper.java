@@ -124,27 +124,29 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
                         var handler = HandleCommand(bridgeCommand);
                         
                         var cmd = Commands
-                        .literal(bridgeCommand.getLiteral())
-                        .executes(handler);
+                            .literal(bridgeCommand.getLiteral())
+                            .executes(handler);
                         
                         var permission = bridgeCommand.getPermission();
                         if (!permission.isEmpty()) {
                             cmd.requires(sender -> sender.getSender().hasPermission(bridgeCommand.getPermission()));
                         }
                         
-                        // Registering singleton handler on all command phase, bridge-command will be can handle invalid calls and then notice user
-                        RequiredArgumentBuilder<CommandSourceStack, ?> prev = null;
-                        for (var argument : bridgeCommand.getArgumentDefinitions()) {
-                            var argumentNode = BuildArgumentNode(argument).executes(handler);
-                            
-                            if (prev == null) {
-                                cmd.then(argumentNode);
+                        if (bridgeCommand instanceof ICommandWithArguments commandWithArguments) {
+                            // Registering singleton handler on all command phase, bridge-command will be can handle invalid calls and then notice user
+                            RequiredArgumentBuilder<CommandSourceStack, ?> prev = null;
+                            for (var argument : commandWithArguments.getArgumentDefinitions()) {
+                                var argumentNode = BuildArgumentNode(argument).executes(handler);
+                                
+                                if (prev == null) {
+                                    cmd.then(argumentNode);
+                                }
+                                else {
+                                    prev.then(argumentNode);
+                                }
+                                
+                                prev = argumentNode;
                             }
-                            else {
-                                prev.then(argumentNode);
-                            }
-                            
-                            prev = argumentNode;
                         }
                         
                         rootLiteral.then(cmd);
@@ -169,16 +171,9 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
             // TODO what about another CommandSender?
 
             try {
-                var args = ctx.getInput();
-                var reader = new StringReader(args);
-
-                // pumping "/{moduleSuffix}" in reader
-                systemWordArgument.getValue(reader);
-
-                // pumping {commandLiteral} in reader
-                systemWordArgument.getValue(reader);
-
-                bridgeCommand.handle(mcPlatformUser, reader);
+                var message = ctx.getInput();
+                var ctx = new MinecraftCommandExecutionContext(mcPlatformUser, message);
+                bridgeCommand.handle(ctx);
             } catch (ArgumentFormatException e) {
                 if (mcPlatformUser != null) {
                     socialBridge.getLocalizationService().getMessage(

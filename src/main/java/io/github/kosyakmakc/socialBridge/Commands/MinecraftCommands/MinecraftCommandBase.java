@@ -1,5 +1,6 @@
 package io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands;
 
+import io.github.kosyakmakc.socialBridge.Commands.ICommandWithArguments;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public abstract class MinecraftCommandBase implements IMinecraftCommand {
+public abstract class MinecraftCommandBase implements IMinecraftCommand, ICommandWithArguments {
     private final String literal;
     private final MessageKey description;
     private final String permission;

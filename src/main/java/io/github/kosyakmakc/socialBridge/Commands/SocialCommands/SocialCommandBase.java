@@ -1,5 +1,6 @@
 package io.github.kosyakmakc.socialBridge.Commands.SocialCommands;
 
+import io.github.kosyakmakc.socialBridge.Commands.ICommandWithArguments;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public abstract class SocialCommandBase implements ISocialCommand {
+public abstract class SocialCommandBase implements ISocialCommand, ICommandWithArguments {
     private final String commandName;
     private final MessageKey description;
     @SuppressWarnings("rawtypes")
