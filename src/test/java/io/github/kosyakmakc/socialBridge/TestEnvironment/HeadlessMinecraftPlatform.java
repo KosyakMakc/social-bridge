@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -113,5 +114,10 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
     public CompletableFuture<Void> connectModule(IMinecraftModule module) {
         registeredModules.add(module);
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<List<MinecraftUser>> getOnlineUsers() {
+        return CompletableFuture.completedFuture(List.of());
     }
 }

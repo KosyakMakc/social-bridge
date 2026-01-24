@@ -326,4 +326,14 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     public Version getSocialBridgeVersion() {
         return socialBridgVersion;
     }
+
+    @Override
+    public CompletableFuture<List<MinecraftUser>> getOnlineUsers() {
+        var users = getServer()
+                    .getOnlinePlayers()
+                    .stream()
+                    .map(player -> (MinecraftUser) new BukkitMinecraftUser(player, this))
+                    .toList();
+        return CompletableFuture.completedFuture(users);
+    }
 }

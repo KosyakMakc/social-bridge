@@ -26,7 +26,7 @@ class BooleanCommandArgument extends CommandArgument<Boolean> implements IComman
 
     @Override
     public CompletableFuture<String[]> getAutoCompletes() {
-        return CompletableFuture.completedFuture(new String[] { "True", "False" });
+        return CompletableFuture.completedFuture(new String[] { "true", "false" });
     }
 
     @Override
@@ -49,7 +49,7 @@ class BooleanCommandArgument extends CommandArgument<Boolean> implements IComman
         }
 
         try {
-            return Boolean.parseBoolean(wordWriter.toString());
+            return Boolean.parseBoolean(wordWriter.toString().toLowerCase());
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_BOOLEAN);
         }
