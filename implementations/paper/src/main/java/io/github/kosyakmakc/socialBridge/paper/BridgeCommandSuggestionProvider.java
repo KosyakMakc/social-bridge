@@ -21,7 +21,7 @@ public class BridgeCommandSuggestionProvider implements SuggestionProvider<Comma
 
         return argument.getAutoCompletes()
             .thenCompose(suggestions -> {
-                for (var suggest : (String[]) suggestions) {
+                for (var suggest : suggestions) {
                     builder.suggest(suggest);
                 }
 
