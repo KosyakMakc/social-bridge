@@ -214,11 +214,11 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
             case Integer -> Commands
                     .argument(commandName, IntegerArgumentType.integer(((ICommandArgumentNumeric<Integer>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
             case Long -> Commands
-                    .argument(commandName, LongArgumentType.longArg(((ICommandArgumentNumeric<Long>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
+                    .argument(commandName, LongArgumentType.longArg(((ICommandArgumentNumeric<Long>) argument).getMin(), ((ICommandArgumentNumeric<Long>) argument).getMax()));
             case Float -> Commands
-                    .argument(commandName, FloatArgumentType.floatArg(((ICommandArgumentNumeric<Float>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
+                    .argument(commandName, FloatArgumentType.floatArg(((ICommandArgumentNumeric<Float>) argument).getMin(), ((ICommandArgumentNumeric<Float>) argument).getMax()));
             case Double -> Commands
-                    .argument(commandName, DoubleArgumentType.doubleArg(((ICommandArgumentNumeric<Double>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
+                    .argument(commandName, DoubleArgumentType.doubleArg(((ICommandArgumentNumeric<Double>) argument).getMin(), ((ICommandArgumentNumeric<Double>) argument).getMax()));
             case Word -> Commands
                     .argument(commandName, StringArgumentType.word())
                     .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentSuggestions) argument));
