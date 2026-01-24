@@ -21,7 +21,7 @@ public class HeadlessSocialPlatform implements ISocialPlatform {
     private static final HashMap<Integer, HeadlessSocialUser> USER_DATABASE = new HashMap<>();
 
     private LinkedList<ISocialModule> connectedModules = new LinkedList<>();
-    private ISocialBridge socialBridge;
+    // private ISocialBridge socialBridge;
 
     @Override
     public String getPlatformName() {
@@ -64,13 +64,13 @@ public class HeadlessSocialPlatform implements ISocialPlatform {
 
     @Override
     public CompletableFuture<Boolean> enable(ISocialBridge socialBridge) {
-        this.socialBridge = socialBridge;
+        // this.socialBridge = socialBridge;
         return CompletableFuture.completedFuture(true);
     }
 
     @Override
     public CompletableFuture<Void> disable() {
-        this.socialBridge = null;
+        // this.socialBridge = null;
         return CompletableFuture.completedFuture(null);
     }
 }

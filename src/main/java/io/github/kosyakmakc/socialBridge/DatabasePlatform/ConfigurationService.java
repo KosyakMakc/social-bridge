@@ -10,17 +10,17 @@ import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
+// import java.util.logging.Logger;
 
 public class ConfigurationService implements IConfigurationService {
     public static final String DATABASE_VERSION = "DATABASE_VERSION";
 
     private final ISocialBridge bridge;
-    private final Logger logger;
+    // private final Logger logger;
 
     public ConfigurationService(ISocialBridge bridge) {
         this.bridge = bridge;
-        this.logger = Logger.getLogger(bridge.getLogger().getName() + '.' + ConfigurationService.class.getSimpleName());
+        // this.logger = Logger.getLogger(bridge.getLogger().getName() + '.' + ConfigurationService.class.getSimpleName());
     }
 
     @Override
