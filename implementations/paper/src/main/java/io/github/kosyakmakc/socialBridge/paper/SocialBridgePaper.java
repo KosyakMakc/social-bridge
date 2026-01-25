@@ -30,6 +30,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -44,6 +45,9 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPlatform {
     public static final String PLATFORM_NAME = "paper";
     public static final UUID PLATFORM_ID = UUID.fromString("2a461647-2958-4e61-9429-12f0bb5c8d3c");
+
+    private static final CommandArgument<String> systemWordArgument = CommandArgument.ofWord("/{pluginSuffix} {commandLiteral} [arguments, ...]");
+    private static final CommandArgument<String> systemGreedyStringArgument = CommandArgument.ofGreedyString("[arguments, ...]");
 
     private final Version socialBridgVersion;
     private final ISocialBridge socialBridge;
@@ -171,7 +175,17 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
 
             try {
                 var message = ctx.getInput();
-                var commandContext = new MinecraftCommandExecutionContext(mcPlatformUser, message);
+                var argsReader = new StringReader(message);
+
+                // pumping "/{moduleSuffix}" in reader, but result is ignored - Paper performs command routing.
+                systemWordArgument.getValue(argsReader);
+
+                // pumping {commandLiteral} in reader, but result is ignored - Paper performs command routing.
+                systemWordArgument.getValue(argsReader);
+
+                var argumentsDefinition = systemGreedyStringArgument.getValue(argsReader);
+
+                var commandContext = new MinecraftCommandExecutionContext(mcPlatformUser, argumentsDefinition);
                 bridgeCommand.handle(commandContext);
             } catch (ArgumentFormatException e) {
                 if (mcPlatformUser != null) {

@@ -17,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public abstract class MinecraftCommandBase implements IMinecraftCommand, ICommandWithArguments {
-    private static final CommandArgument<String> systemWordArgument = CommandArgument.ofWord("/{pluginSuffix} {commandLiteral} [arguments, ...]");
-
     private final String literal;
     private final MessageKey description;
     private final String permission;
@@ -105,12 +103,6 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand, IComman
         var argsReader = new StringReader(message);
 
         var arguments = new LinkedList<>();
-        
-        // pumping "/{moduleSuffix}" in reader
-        systemWordArgument.getValue(argsReader);
-
-        // pumping {commandLiteral} in reader
-        systemWordArgument.getValue(argsReader);
 
         for (var argument : getArgumentDefinitions()) {
             var valueItem = argument.getValue(argsReader);
