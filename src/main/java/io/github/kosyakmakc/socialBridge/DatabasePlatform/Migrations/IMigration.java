@@ -1,8 +1,8 @@
 package io.github.kosyakmakc.socialBridge.DatabasePlatform.Migrations;
 
-import io.github.kosyakmakc.socialBridge.DatabasePlatform.IDatabaseConsumer;
+import io.github.kosyakmakc.socialBridge.ITransactionConsumer;
 
-public interface IMigration extends IDatabaseConsumer<Void> {
+public interface IMigration extends ITransactionConsumer<Void> {
     String getName();
     int getVersion();
 }

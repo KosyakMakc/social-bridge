@@ -21,7 +21,7 @@ public class ApplyDatabaseMigrations implements Consumer<ISocialBridge> {
         var logger = bridge.getLogger();
         var configurationService = bridge.getConfigurationService();
 
-        var databaseVersion = configurationService.getDatabaseVersion().join();
+        var databaseVersion = configurationService.getDatabaseVersion(null).join();
         var latestDatabaseVersion = Arrays.stream(migrations).max(Comparator.comparingInt(IMigration::getVersion)).get().getVersion();
 
         if (databaseVersion < latestDatabaseVersion) {
@@ -29,7 +29,7 @@ public class ApplyDatabaseMigrations implements Consumer<ISocialBridge> {
             for (var migration : migrations) {
                 if (migration.getVersion() > databaseVersion) {
                     logger.info("applying migration \"" + migration.getName() + "\" (version: " + migration.getVersion() + ").");
-                    bridge.queryDatabase(migration).join();
+                    bridge.doTransaction(migration).join();
                 }
             }
             logger.info("current database updated.");

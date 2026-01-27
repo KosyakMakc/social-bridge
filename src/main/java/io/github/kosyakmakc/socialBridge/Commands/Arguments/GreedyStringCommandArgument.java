@@ -5,12 +5,16 @@ import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
-class GreedyStringCommandArgument extends CommandArgument<String> {
+class GreedyStringCommandArgument extends CommandArgument<String> implements ICommandArgumentSuggestions {
     private final String name;
+    private final Supplier<CompletableFuture<String[]>> suggestionProvider;
 
-    public GreedyStringCommandArgument(String name) {
+    public GreedyStringCommandArgument(String name, Supplier<CompletableFuture<String[]>> suggestionProvider) {
         this.name = name;
+        this.suggestionProvider = suggestionProvider;
     }
 
     @Override
@@ -24,8 +28,8 @@ class GreedyStringCommandArgument extends CommandArgument<String> {
     }
 
     @Override
-    public String[] getAutoCompletes() {
-        return new String[0];
+    public CompletableFuture<String[]> getSuggestions() {
+        return suggestionProvider.get();
     }
 
     @Override

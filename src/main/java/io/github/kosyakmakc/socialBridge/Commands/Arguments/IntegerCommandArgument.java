@@ -6,11 +6,15 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-class IntegerCommandArgument extends CommandArgument<Integer> {
+class IntegerCommandArgument extends CommandArgument<Integer> implements ICommandArgumentNumeric<Integer> {
     private final String name;
+    private final int minimum;
+    private final int maximum;
 
-    public IntegerCommandArgument(String name) {
+    public IntegerCommandArgument(String name, int minimum, int maximum) {
         this.name = name;
+        this.minimum = minimum;
+        this.maximum = maximum;
     }
 
     @Override
@@ -21,11 +25,6 @@ class IntegerCommandArgument extends CommandArgument<Integer> {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String[] getAutoCompletes() {
-        return new String[0];
     }
     
     @Override
@@ -48,9 +47,23 @@ class IntegerCommandArgument extends CommandArgument<Integer> {
         }
 
         try {
-            return (int) Double.parseDouble(wordWriter.toString());
+            var value = (int) Double.parseDouble(wordWriter.toString());
+            if (value < minimum && value > maximum) {
+                throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_MIN_MAX_ERROR);
+            }
+            return value;
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_INTEGER);
         }
+    }
+
+    @Override
+    public Integer getMin() {
+        return minimum;
+    }
+
+    @Override
+    public Integer getMax() {
+        return maximum;
     }
 }

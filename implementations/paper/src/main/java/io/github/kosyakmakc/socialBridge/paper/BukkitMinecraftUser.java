@@ -15,13 +15,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public class BukkitMinecraftUser extends MinecraftUser {
-    private final IMinecraftPlatform platform;
+    // private final IMinecraftPlatform platform;
     private final Logger logger;
     private final Player player;
 
     public BukkitMinecraftUser(Player player, IMinecraftPlatform platform) {
         super();
-        this.platform = platform;
+        // this.platform = platform;
         this.logger = Logger.getLogger(platform.getLogger().getName() + '.' + BukkitMinecraftUser.class.getSimpleName());
         this.player = player;
     }

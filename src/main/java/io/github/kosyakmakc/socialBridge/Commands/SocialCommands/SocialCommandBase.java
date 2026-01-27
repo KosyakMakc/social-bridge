@@ -1,10 +1,10 @@
 package io.github.kosyakmakc.socialBridge.Commands.SocialCommands;
 
+import io.github.kosyakmakc.socialBridge.Commands.ICommandWithArguments;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
-import io.github.kosyakmakc.socialBridge.ISocialModule;
+import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
-import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 import java.io.StringReader;
@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public abstract class SocialCommandBase implements ISocialCommand {
+public abstract class SocialCommandBase implements ISocialCommand, ICommandWithArguments {
     private final String commandName;
     private final MessageKey description;
     @SuppressWarnings("rawtypes")
     private final List<CommandArgument> argumentDefinition;
     private ISocialBridge bridge = null;
-    private ISocialModule module = null;
+    private IModuleBase module = null;
     private Logger logger = null;
 
     public SocialCommandBase(String commandName, MessageKey description) {
@@ -52,7 +52,7 @@ public abstract class SocialCommandBase implements ISocialCommand {
     }
 
     @Override
-    public CompletableFuture<Void> enable(ISocialModule module) {
+    public CompletableFuture<Void> enable(IModuleBase module) {
         this.module = module;
         bridge = module.getBridge();
         logger = Logger.getLogger(bridge.getLogger().getName() + '.' + module.getName() + '.' + getLiteral());
@@ -71,14 +71,17 @@ public abstract class SocialCommandBase implements ISocialCommand {
         return logger;
     }
 
-    public abstract void execute(SocialUser sender, List<Object> args);
+    public abstract void execute(SocialCommandExecutionContext context, List<Object> args);
 
     @Override
-    public void handle(SocialUser sender, StringReader argsReader) throws ArgumentFormatException {
+    public void handle(SocialCommandExecutionContext context) throws ArgumentFormatException {
         if (bridge == null) {
             Logger.getGlobal().info(this.getClass().getName() + " - initialization failed, skip handling");
             return;
         }
+
+        var message = context.getMessage();
+        var argsReader = new StringReader(message);
 
         var arguments = new LinkedList<>();
 
@@ -87,14 +90,14 @@ public abstract class SocialCommandBase implements ISocialCommand {
             arguments.add(valueItem);
         }
 
-        execute(sender, arguments);
+        execute(context, arguments);
     }
 
     protected ISocialBridge getBridge() {
         return bridge;
     }
 
-    protected ISocialModule getModule() {
+    protected IModuleBase getModule() {
         return module;
     }
 }

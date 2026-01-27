@@ -1,10 +1,11 @@
 package io.github.kosyakmakc.socialBridge.TestEnvironment;
 
 import io.github.kosyakmakc.socialBridge.DefaultModule;
-import io.github.kosyakmakc.socialBridge.ISocialModule;
 import io.github.kosyakmakc.socialBridge.ITransaction;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
+import io.github.kosyakmakc.socialBridge.Modules.IMinecraftModule;
+import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -21,8 +23,8 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
     public static final String PLATFORM_NAME = "headless";
     public static final UUID PLATFORM_ID = UUID.fromString("c936579c-da7e-47dd-be85-d93f0558fab1");
 
-    public static final Version VERSION = new Version("0.8.3");
-    private LinkedBlockingQueue<ISocialModule> registeredModules = new LinkedBlockingQueue<>();
+    public static final Version VERSION = new Version("0.9.3");
+    private LinkedBlockingQueue<IMinecraftModule> registeredModules = new LinkedBlockingQueue<>();
     private HashMap<UUID, HashMap<String, String>> config = new HashMap<>();
     private final UUID instanceId = UUID.randomUUID();
 
@@ -57,22 +59,12 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
     }
 
     @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, ITransaction transaction) {
-        return get(module, parameter, defaultValue);
-    }
-
-        @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue) {
-        return get(module.getId(), parameter, defaultValue);
+    public CompletableFuture<String> get(IModuleBase module, String parameter, String defaultValue, ITransaction transaction) {
+        return get(module.getId(), parameter, defaultValue, transaction);
     }
 
     @Override
     public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
-        return get(moduleId, parameter, defaultValue);
-    }
-
-    @Override
-    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
         var moduleConfig = config.getOrDefault(moduleId, null);
         if (moduleConfig == null) {
             moduleConfig = new HashMap<>();
@@ -84,22 +76,12 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
     }
 
     @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, ITransaction transaction) {
-        return set(module.getId(), parameter, value);
-    }
-
-    @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value) {
-        return set(module.getId(), parameter, value);
+    public CompletableFuture<Boolean> set(IModuleBase module, String parameter, String value, ITransaction transaction) {
+        return set(module.getId(), parameter, value, transaction);
     }
 
     @Override
     public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, ITransaction transaction) {
-        return set(moduleId, parameter, value);
-    }
-
-    @Override
-    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
         var moduleConfig = config.getOrDefault(moduleId, null);
         if (moduleConfig == null) {
             moduleConfig = new HashMap<>();
@@ -117,7 +99,7 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
         }
 
         var mcPlatform = new HeadlessMinecraftPlatform();
-        mcPlatform.set(DefaultModule.MODULE_ID, "connectionString", "jdbc:h2:mem:account");
+        mcPlatform.set(DefaultModule.MODULE_ID, "connectionString", "jdbc:h2:mem:account", null);
 
         SocialBridge.Init(mcPlatform);
         isInited = true;
@@ -129,8 +111,13 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
     }
 
     @Override
-    public CompletableFuture<Void> connectModule(ISocialModule module) {
+    public CompletableFuture<Void> connectModule(IMinecraftModule module) {
         registeredModules.add(module);
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<List<MinecraftUser>> getOnlineUsers() {
+        return CompletableFuture.completedFuture(List.of());
     }
 }

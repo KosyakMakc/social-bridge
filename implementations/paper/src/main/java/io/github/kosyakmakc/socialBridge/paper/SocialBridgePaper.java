@@ -4,16 +4,20 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 
+import io.github.kosyakmakc.socialBridge.Commands.ICommandWithArguments;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
+import io.github.kosyakmakc.socialBridge.Commands.Arguments.ICommandArgumentNumeric;
+import io.github.kosyakmakc.socialBridge.Commands.Arguments.ICommandArgumentSuggestions;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.DefaultModule;
-import io.github.kosyakmakc.socialBridge.ISocialModule;
 import io.github.kosyakmakc.socialBridge.ITransaction;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
+import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
+import io.github.kosyakmakc.socialBridge.Modules.IMinecraftModule;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -25,7 +29,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -41,8 +44,6 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     public static final String PLATFORM_NAME = "paper";
     public static final UUID PLATFORM_ID = UUID.fromString("2a461647-2958-4e61-9429-12f0bb5c8d3c");
 
-    private static final CommandArgument<String> systemWordArgument = CommandArgument.ofWord("/{pluginSuffix} {commandLiteral} [arguments, ...]");
-
     private final Version socialBridgVersion;
     private final ISocialBridge socialBridge;
     private final UUID instanceId;
@@ -55,14 +56,14 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
 
             UUID localInstanceId;
             try {
-                localInstanceId = UUID.fromString(this.get(DefaultModule.MODULE_ID, "instanceID", "").join());
+                localInstanceId = UUID.fromString(this.get(DefaultModule.MODULE_ID, "instanceID", "", null).join());
             }
             catch (IllegalArgumentException err) {
                 localInstanceId = new UUID(0L, 0L);
             }
             if (localInstanceId.compareTo(new UUID(0L, 0L)) == 0) {
                 localInstanceId = UUID.randomUUID();
-                this.set(DefaultModule.MODULE_ID, "instanceID", localInstanceId.toString()).join();
+                this.set(DefaultModule.MODULE_ID, "instanceID", localInstanceId.toString(), null).join();
             }
 
             instanceId = localInstanceId;
@@ -106,7 +107,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<Void> connectModule(ISocialModule module) {
+    public CompletableFuture<Void> connectModule(IMinecraftModule module) {
         return CompletableFuture.runAsync(() -> {
             if (module.getLoader() instanceof JavaPlugin externalPlugin) {
                 externalPlugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
@@ -121,27 +122,29 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
                         var handler = HandleCommand(bridgeCommand);
                         
                         var cmd = Commands
-                        .literal(bridgeCommand.getLiteral())
-                        .executes(handler);
+                            .literal(bridgeCommand.getLiteral())
+                            .executes(handler);
                         
                         var permission = bridgeCommand.getPermission();
                         if (!permission.isEmpty()) {
                             cmd.requires(sender -> sender.getSender().hasPermission(bridgeCommand.getPermission()));
                         }
                         
-                        // Registering singleton handler on all command phase, bridge-command will be can handle invalid calls and then notice user
-                        RequiredArgumentBuilder<CommandSourceStack, ?> prev = null;
-                        for (var argument : bridgeCommand.getArgumentDefinitions()) {
-                            var argumentNode = BuildArgumentNode(argument).executes(handler);
-                            
-                            if (prev == null) {
-                                cmd.then(argumentNode);
+                        if (bridgeCommand instanceof ICommandWithArguments commandWithArguments) {
+                            // Registering singleton handler on all command phase, bridge-command will be can handle invalid calls and then notice user
+                            RequiredArgumentBuilder<CommandSourceStack, ?> prev = null;
+                            for (var argument : commandWithArguments.getArgumentDefinitions()) {
+                                var argumentNode = BuildArgumentNode(argument).executes(handler);
+                                
+                                if (prev == null) {
+                                    cmd.then(argumentNode);
+                                }
+                                else {
+                                    prev.then(argumentNode);
+                                }
+                                
+                                prev = argumentNode;
                             }
-                            else {
-                                prev.then(argumentNode);
-                            }
-                            
-                            prev = argumentNode;
                         }
                         
                         rootLiteral.then(cmd);
@@ -166,22 +169,15 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
             // TODO what about another CommandSender?
 
             try {
-                var args = ctx.getInput();
-                var reader = new StringReader(args);
-
-                // pumping "/{moduleSuffix}" in reader
-                systemWordArgument.getValue(reader);
-
-                // pumping {commandLiteral} in reader
-                systemWordArgument.getValue(reader);
-
-                bridgeCommand.handle(mcPlatformUser, reader);
+                var commandContext = new PaperMinecraftCommandExecutionContext(mcPlatformUser, ctx.getInput());
+                bridgeCommand.handle(commandContext);
             } catch (ArgumentFormatException e) {
                 if (mcPlatformUser != null) {
                     socialBridge.getLocalizationService().getMessage(
                         socialBridge.getModule(DefaultModule.class),
                         mcPlatformUser.getLocale(),
-                        e.getMessageKey()
+                        e.getMessageKey(),
+                        null
                     )
                     .thenAccept(msgTemplate -> 
                         mcPlatformUser.sendMessage(msgTemplate, new HashMap<>()));
@@ -190,17 +186,21 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
                     socialBridge.getLocalizationService().getMessage(
                         socialBridge.getModule(DefaultModule.class),
                         LocalizationService.defaultLocale,
-                        e.getMessageKey()
+                        e.getMessageKey(),
+                        null
                     )
                     .thenAccept(msgTemplate -> 
                         getLogger().warning(msgTemplate));
                 }
             }
+            catch (Exception err) {
+                err.printStackTrace();
+            }
             return SINGLE_SUCCESS;
         };
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private RequiredArgumentBuilder<CommandSourceStack, ?> BuildArgumentNode(CommandArgument argument) {
         var commandName = argument.getName();
         var dataType = argument.getDataType();
@@ -208,28 +208,24 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
         return switch (dataType) {
             case Boolean -> Commands
                     .argument(commandName, BoolArgumentType.bool())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentSuggestions) argument));
             case Integer -> Commands
-                    .argument(commandName, IntegerArgumentType.integer())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, IntegerArgumentType.integer(((ICommandArgumentNumeric<Integer>) argument).getMin(), ((ICommandArgumentNumeric<Integer>) argument).getMax()));
             case Long -> Commands
-                    .argument(commandName, LongArgumentType.longArg())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, LongArgumentType.longArg(((ICommandArgumentNumeric<Long>) argument).getMin(), ((ICommandArgumentNumeric<Long>) argument).getMax()));
             case Float -> Commands
-                    .argument(commandName, FloatArgumentType.floatArg())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, FloatArgumentType.floatArg(((ICommandArgumentNumeric<Float>) argument).getMin(), ((ICommandArgumentNumeric<Float>) argument).getMax()));
             case Double -> Commands
-                    .argument(commandName, DoubleArgumentType.doubleArg())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .argument(commandName, DoubleArgumentType.doubleArg(((ICommandArgumentNumeric<Double>) argument).getMin(), ((ICommandArgumentNumeric<Double>) argument).getMax()));
             case Word -> Commands
                     .argument(commandName, StringArgumentType.word())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentSuggestions) argument));
             case String -> Commands
                     .argument(commandName, StringArgumentType.string())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentSuggestions) argument));
             case GreedyString -> Commands
                     .argument(commandName, StringArgumentType.greedyString())
-                    .suggests(new BridgeCommandSuggestionProvider(argument));
+                    .suggests(new BridgeCommandSuggestionProvider((ICommandArgumentSuggestions) argument));
         };
     }
 
@@ -273,22 +269,16 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue, ITransaction transaction) {
-        return get(module.getId(), parameter, defaultValue);
-    }
-
-    @Override
-    public CompletableFuture<String> get(ISocialModule module, String parameter, String defaultValue) {
-        return get(module.getId(), parameter, defaultValue);
+    public CompletableFuture<String> get(IModuleBase module, String parameter, String defaultValue, ITransaction transaction) {
+        return get(module.getId(), parameter, defaultValue, transaction);
     }
 
     @Override
     public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
-        return get(moduleId, parameter, defaultValue);
+        return getFromConfig(moduleId, parameter, defaultValue, transaction);
     }
 
-    @Override
-    public CompletableFuture<String> get(UUID moduleId, String parameter, String defaultValue) {
+    private CompletableFuture<String> getFromConfig(UUID moduleId, String parameter, String defaultValue, ITransaction transaction) {
         return CompletableFuture.supplyAsync(() -> {
             var config = this.getConfig();
 
@@ -302,22 +292,16 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     }
 
     @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value, ITransaction transaction) {
-        return set(module.getId(), parameter, value);
-    }
-
-    @Override
-    public CompletableFuture<Boolean> set(ISocialModule module, String parameter, String value) {
-        return set(module.getId(), parameter, value);
+    public CompletableFuture<Boolean> set(IModuleBase module, String parameter, String value, ITransaction transaction) {
+        return set(module.getId(), parameter, value, transaction);
     }
 
     @Override
     public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value, ITransaction transaction) {
-        return set(moduleId, parameter, value);
+        return setToConfig(moduleId, parameter, value);
     }
 
-    @Override
-    public CompletableFuture<Boolean> set(UUID moduleId, String parameter, String value) {
+    private CompletableFuture<Boolean> setToConfig(UUID moduleId, String parameter, String value) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 var config = this.getConfig();
@@ -328,6 +312,7 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
                 }
 
                 moduleSection.set(parameter, value);
+                this.saveConfig();
 
                 getLogger().info("plugin configuration change: " + parameter + "=" + value);
                 return true;
@@ -342,5 +327,15 @@ public final class SocialBridgePaper extends JavaPlugin implements IMinecraftPla
     @Override
     public Version getSocialBridgeVersion() {
         return socialBridgVersion;
+    }
+
+    @Override
+    public CompletableFuture<List<MinecraftUser>> getOnlineUsers() {
+        var users = getServer()
+                    .getOnlinePlayers()
+                    .stream()
+                    .map(player -> (MinecraftUser) new BukkitMinecraftUser(player, this))
+                    .toList();
+        return CompletableFuture.completedFuture(users);
     }
 }

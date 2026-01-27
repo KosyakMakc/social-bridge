@@ -1,10 +1,10 @@
 package io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands;
 
+import io.github.kosyakmakc.socialBridge.Commands.ICommandWithArguments;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
-import io.github.kosyakmakc.socialBridge.ISocialModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
-import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
+import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import io.github.kosyakmakc.socialBridge.Utils.Permissions;
 
@@ -16,13 +16,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-public abstract class MinecraftCommandBase implements IMinecraftCommand {
+public abstract class MinecraftCommandBase implements IMinecraftCommand, ICommandWithArguments {
     private final String literal;
     private final MessageKey description;
     private final String permission;
     @SuppressWarnings("rawtypes")
     private final List<CommandArgument> argumentDefinition;
+
     private ISocialBridge bridge = null;
+    private IModuleBase module = null;
     private Logger logger = null;
 
     public MinecraftCommandBase(String literal, MessageKey description) {
@@ -47,7 +49,8 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
     }
 
     @Override
-    public CompletableFuture<Void> enable(ISocialModule module) {
+    public CompletableFuture<Void> enable(IModuleBase module) {
+        this.module = module;
         bridge = module.getBridge();
         logger = Logger.getLogger(bridge.getLogger().getName() + '.' + module.getName() + '.' + getLiteral());
         return CompletableFuture.completedFuture(null);
@@ -55,6 +58,7 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
     @Override
     public CompletableFuture<Void> disable() {
+        module = null;
         bridge = null;
         logger = null;
         return CompletableFuture.completedFuture(null);
@@ -85,14 +89,18 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
         return argumentDefinition;
     }
 
-    public abstract void execute(MinecraftUser sender, List<Object> args);
+    public abstract void execute(MinecraftCommandExecutionContext context, List<Object> args);
 
     @Override
-    public void handle(MinecraftUser sender, StringReader argsReader) throws ArgumentFormatException {
+    public void handle(MinecraftCommandExecutionContext context) throws ArgumentFormatException {
         if (bridge == null) {
             Logger.getGlobal().warning(this.getClass().getName() + " - initialization failed, skip handling");
             return;
         }
+
+        var sender = context.getSender();
+        var message = context.getMessage();
+        var argsReader = new StringReader(message);
 
         var arguments = new LinkedList<>();
 
@@ -103,7 +111,7 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
         var permissionNode = getPermission();
         if (permissionNode.isEmpty()) {
-            execute(sender, arguments);
+            execute(context, arguments);
         }
         else {
             if (sender == null) {
@@ -112,7 +120,7 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
             sender.hasPermission(permissionNode).thenAccept(hasPermission -> {
                 if (hasPermission) {
-                    execute(sender, arguments);
+                    execute(context, arguments);
                 }
             });
         }
@@ -120,5 +128,9 @@ public abstract class MinecraftCommandBase implements IMinecraftCommand {
 
     protected ISocialBridge getBridge() {
         return bridge;
+    }
+
+    protected IModuleBase getModule() {
+        return module;
     }
 }

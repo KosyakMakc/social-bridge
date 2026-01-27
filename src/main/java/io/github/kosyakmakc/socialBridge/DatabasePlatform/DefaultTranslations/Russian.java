@@ -2,13 +2,12 @@ package io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations;
 
 import java.util.List;
 
-import io.github.kosyakmakc.socialBridge.DatabasePlatform.LocalizationService;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 public class Russian implements ITranslationSource {
     @Override
     public String getLanguage() {
-        return LocalizationService.defaultLocale;
+        return "ru";
     }
 
     @Override

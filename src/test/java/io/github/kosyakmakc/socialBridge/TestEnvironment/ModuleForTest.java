@@ -5,16 +5,17 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import io.github.kosyakmakc.socialBridge.ISocialModule;
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.IMinecraftCommand;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.ISocialCommand;
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.DefaultTranslations.ITranslationSource;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IModuleLoader;
+import io.github.kosyakmakc.socialBridge.Modules.IModule;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
-public class ModuleForTest implements ISocialModule, AutoCloseable {
+public class ModuleForTest implements IModule, AutoCloseable {
+    public static final String DEFAULT_NAME = "DefaultEmptyName";
     private UUID moduleId = UUID.randomUUID();
     private Version version = HeadlessMinecraftPlatform.VERSION;
 
@@ -26,7 +27,7 @@ public class ModuleForTest implements ISocialModule, AutoCloseable {
     @SuppressWarnings("rawtypes")
     private final HashMap<Class, ITranslationSource> translations = new HashMap<>();
     private ISocialBridge bridge;
-    private String name = "DefaultEmptyName";
+    private String name = DEFAULT_NAME;
 
     public ModuleForTest() {
         this.loader = SocialBridge.INSTANCE.getMinecraftPlatform();

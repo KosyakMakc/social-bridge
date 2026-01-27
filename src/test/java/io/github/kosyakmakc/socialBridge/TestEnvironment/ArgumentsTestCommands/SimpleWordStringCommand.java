@@ -6,14 +6,16 @@ import org.junit.jupiter.api.Assertions;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
-import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 public class SimpleWordStringCommand extends SocialCommandBase {
+    public static final String NAME = "SimpleWordTest";
+
     private String answer;
     
     public SimpleWordStringCommand() {
-        super("SimpleWordTest", MessageKey.EMPTY, List.of(CommandArgument.ofWord("single argument")));
+        super(NAME, MessageKey.EMPTY, List.of(CommandArgument.ofWord("single argument")));
     }
     
     public void prepareAnswer(String answer) {
@@ -21,7 +23,7 @@ public class SimpleWordStringCommand extends SocialCommandBase {
     }
 
     @Override
-    public void execute(SocialUser sender, List<Object> args) {
+    public void execute(SocialCommandExecutionContext context, List<Object> args) {
         Assertions.assertEquals(answer, args.getFirst());
     }
 }

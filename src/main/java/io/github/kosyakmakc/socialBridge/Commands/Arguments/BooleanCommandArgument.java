@@ -5,8 +5,9 @@ import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.concurrent.CompletableFuture;
 
-class BooleanCommandArgument extends CommandArgument<Boolean> {
+class BooleanCommandArgument extends CommandArgument<Boolean> implements ICommandArgumentSuggestions {
     private final String name;
 
     public BooleanCommandArgument(String name) {
@@ -24,8 +25,8 @@ class BooleanCommandArgument extends CommandArgument<Boolean> {
     }
 
     @Override
-    public String[] getAutoCompletes() {
-        return new String[] { "True", "False"};
+    public CompletableFuture<String[]> getSuggestions() {
+        return CompletableFuture.completedFuture(new String[] { "true", "false" });
     }
 
     @Override
@@ -48,7 +49,7 @@ class BooleanCommandArgument extends CommandArgument<Boolean> {
         }
 
         try {
-            return Boolean.parseBoolean(wordWriter.toString());
+            return Boolean.parseBoolean(wordWriter.toString().toLowerCase());
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_BOOLEAN);
         }

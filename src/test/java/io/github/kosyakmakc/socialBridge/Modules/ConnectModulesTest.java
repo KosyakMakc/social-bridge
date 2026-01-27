@@ -10,9 +10,9 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.MinecraftCommandBase;
+import io.github.kosyakmakc.socialBridge.Commands.MinecraftCommands.MinecraftCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
-import io.github.kosyakmakc.socialBridge.MinecraftPlatform.MinecraftUser;
-import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ModuleForTest;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
@@ -21,10 +21,10 @@ import io.github.kosyakmakc.socialBridge.Utils.Version;
 public class ConnectModulesTest {
     @ParameterizedTest
     @CsvSource({
-        // Environment with SocialBridge(0.8.3)
-        "0.8.0", // module require just base version
-        "0.8.1", // module require a little bug-fix or new functionality
-        "0.8.3", // module require a little bug-fix or new functionality
+        // Environment with SocialBridge(0.9.3)
+        "0.9.0", // module require just base version
+        "0.9.1", // module require a little bug-fix or new functionality
+        "0.9.3", // module require a little bug-fix or new functionality
     })
     void checkModuleVersionCompability(String moduleVersion) throws SQLException, IOException {
         HeadlessMinecraftPlatform.Init();
@@ -44,7 +44,7 @@ public class ConnectModulesTest {
     
     @ParameterizedTest
     @CsvSource({
-        // Environment with SocialBridge(0.8.3)
+        // Environment with SocialBridge(0.9.3)
         "0.99.0", // module have new breaking-changes api, DON'T CONNECT
         "0.99.1", // module have new breaking-changes api, DON'T CONNECT
         "0.99.99", // module have new breaking-changes api, DON'T CONNECT
@@ -52,9 +52,9 @@ public class ConnectModulesTest {
         "0.2.1", // module outdated to SocialBridge breaking-change api, DON'T CONNECT
         "0.2.99", // module outdated to SocialBridge breaking-change api, DON'T CONNECT
 
-        "0.8.4", // module requires not existed bug-fix or new functionality, DON'T CONNECT
-        "0.8.5", // module requires not existed bug-fix or new functionality, DON'T CONNECT
-        "0.8.99", // module requires not existed bug-fix or new functionality, DON'T CONNECT
+        "0.9.4", // module requires not existed bug-fix or new functionality, DON'T CONNECT
+        "0.9.5", // module requires not existed bug-fix or new functionality, DON'T CONNECT
+        "0.9.99", // module requires not existed bug-fix or new functionality, DON'T CONNECT
 
         "1.0.0", // module have new breaking-changes api, DON'T CONNECT
         "1.0.1", // module have new breaking-changes api, DON'T CONNECT
@@ -142,7 +142,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addMinecraftCommand(new MinecraftCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(MinecraftUser sender, List<Object> args) { }
+                public void execute(MinecraftCommandExecutionContext context, List<Object> args) { }
                 
             });
             
@@ -165,7 +165,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addMinecraftCommand(new MinecraftCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(MinecraftUser sender, List<Object> args) { }
+                public void execute(MinecraftCommandExecutionContext context, List<Object> args) { }
                 
             });
             
@@ -194,7 +194,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addSocialCommand(new SocialCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(SocialUser sender, List<Object> args) { }
+                public void execute(SocialCommandExecutionContext context, List<Object> args) { }
                 
             });
             
@@ -217,7 +217,7 @@ public class ConnectModulesTest {
         try (var module = new ModuleForTest()) {
             module.addSocialCommand(new SocialCommandBase(moduleName, MessageKey.EMPTY) {
                 @Override
-                public void execute(SocialUser sender, List<Object> args) { }
+                public void execute(SocialCommandExecutionContext context, List<Object> args) { }
                 
             });
             

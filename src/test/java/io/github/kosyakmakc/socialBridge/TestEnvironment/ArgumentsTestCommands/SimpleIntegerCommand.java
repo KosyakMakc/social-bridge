@@ -6,23 +6,25 @@ import org.junit.jupiter.api.Assertions;
 
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.CommandArgument;
 import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandBase;
-import io.github.kosyakmakc.socialBridge.SocialPlatforms.SocialUser;
+import io.github.kosyakmakc.socialBridge.Commands.SocialCommands.SocialCommandExecutionContext;
 import io.github.kosyakmakc.socialBridge.Utils.MessageKey;
 
 
 public class SimpleIntegerCommand extends SocialCommandBase {
+    public static final String NAME = "IntegerTest";
+
     private int answer;
-    
+
     public SimpleIntegerCommand() {
-        super("IntegerTest", MessageKey.EMPTY, List.of(CommandArgument.ofInteger("single argument")));
+        super(NAME, MessageKey.EMPTY, List.of(CommandArgument.ofInteger("single argument")));
     }
-    
+
     public void prepareAnswer(int answer) {
         this.answer = answer;
     }
 
     @Override
-    public void execute(SocialUser sender, List<Object> args) {
+    public void execute(SocialCommandExecutionContext context, List<Object> args) {
         Assertions.assertEquals(answer, (int) args.getFirst());
     }
 }

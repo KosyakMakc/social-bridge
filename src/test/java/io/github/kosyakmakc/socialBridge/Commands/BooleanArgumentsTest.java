@@ -3,15 +3,17 @@ package io.github.kosyakmakc.socialBridge.Commands;
 import io.github.kosyakmakc.socialBridge.Commands.Arguments.ArgumentFormatException;
 import io.github.kosyakmakc.socialBridge.SocialBridge;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ModuleForTest;
-import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
 import io.github.kosyakmakc.socialBridge.TestEnvironment.ArgumentsTestCommands.SimpleBooleanCommand;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessMinecraftPlatform;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessSocialCommandExecutionContext;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessSocialMessage;
+import io.github.kosyakmakc.socialBridge.TestEnvironment.HeadlessSocialUser;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.sql.SQLException;
 
 public class BooleanArgumentsTest {
@@ -34,6 +36,7 @@ public class BooleanArgumentsTest {
         "false, 1, false", // :(
     })
     void simpleIntegerCheck(boolean answer, String raw, boolean isError) throws SQLException, IOException {
+        raw = '/' + ModuleForTest.DEFAULT_NAME + '_' + SimpleBooleanCommand.NAME + ' ' + raw;
         HeadlessMinecraftPlatform.Init();
         try (var module = new ModuleForTest()) {
             try {
@@ -43,7 +46,7 @@ public class BooleanArgumentsTest {
                 SocialBridge.INSTANCE.connectModule(module);
                 
                 command.prepareAnswer(answer);
-                command.handle(null, new StringReader(raw));
+                command.handle(new HeadlessSocialCommandExecutionContext(new HeadlessSocialMessage(HeadlessSocialUser.Alex, raw)));
                 
                 if (isError) {
                     Assertions.fail("MUST failed | " + answer + " | " + raw + " | " + isError);

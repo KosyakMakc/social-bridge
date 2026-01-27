@@ -20,7 +20,7 @@ import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.luckperms.api.LuckPerms;
 
 public class OfflineBukkitMinecraftUser extends MinecraftUser {
-    private final IMinecraftPlatform platform;
+    // private final IMinecraftPlatform platform;
     private final Logger logger;
 
     private final UUID playerId;
@@ -28,7 +28,7 @@ public class OfflineBukkitMinecraftUser extends MinecraftUser {
 
     public OfflineBukkitMinecraftUser(PlayerProfile player, IMinecraftPlatform platform) {
         super();
-        this.platform = platform;
+        // this.platform = platform;
         this.logger = Logger.getLogger(platform.getLogger().getName() + '.' + BukkitMinecraftUser.class.getSimpleName());
 
         this.playerId = player.getId();

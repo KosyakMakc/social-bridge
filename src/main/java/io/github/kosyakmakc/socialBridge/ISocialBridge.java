@@ -1,8 +1,8 @@
 package io.github.kosyakmakc.socialBridge;
 
 import io.github.kosyakmakc.socialBridge.DatabasePlatform.ConfigurationService;
-import io.github.kosyakmakc.socialBridge.DatabasePlatform.IDatabaseConsumer;
 import io.github.kosyakmakc.socialBridge.MinecraftPlatform.IMinecraftPlatform;
+import io.github.kosyakmakc.socialBridge.Modules.IModuleBase;
 import io.github.kosyakmakc.socialBridge.SocialPlatforms.ISocialPlatform;
 import io.github.kosyakmakc.socialBridge.Utils.Version;
 
@@ -17,8 +17,7 @@ public interface ISocialBridge {
     Logger getLogger();
     ILocalizationService getLocalizationService();
     ConfigurationService getConfigurationService();
-    <T> CompletableFuture<T> queryDatabase(IDatabaseConsumer<T> action);
-    <T> CompletableFuture<T> queryDatabase(IDatabaseConsumer<T> action, ITransaction transaction);
+    <T> CompletableFuture<T> doTransaction(ITransactionConsumer<T> action);
 
     BridgeEvents getEvents();
 
@@ -30,9 +29,9 @@ public interface ISocialBridge {
 
     IMinecraftPlatform getMinecraftPlatform();
 
-    CompletableFuture<Boolean> connectModule(ISocialModule module);
-    CompletableFuture<Void> disconnectModule(ISocialModule module);
-    Collection<ISocialModule> getModules();
-    <T extends ISocialModule> T getModule(Class<T> tClass);
-    ISocialModule getModule(UUID moduleId);
+    CompletableFuture<Boolean> connectModule(IModuleBase module);
+    CompletableFuture<Void> disconnectModule(IModuleBase module);
+    Collection<IModuleBase> getModules();
+    <T extends IModuleBase> T getModule(Class<T> tClass);
+    IModuleBase getModule(UUID moduleId);
 }

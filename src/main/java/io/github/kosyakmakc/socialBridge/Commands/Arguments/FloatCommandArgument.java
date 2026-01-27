@@ -6,11 +6,15 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-class FloatCommandArgument extends CommandArgument<Float> {
+class FloatCommandArgument extends CommandArgument<Float> implements ICommandArgumentNumeric<Float> {
     private final String name;
+    private final Float minimum;
+    private final Float maximum;
 
-    public FloatCommandArgument(String name) {
+    public FloatCommandArgument(String name, Float minimum, Float maximum) {
         this.name = name;
+        this.minimum = minimum;
+        this.maximum = maximum;
     }
 
     @Override
@@ -21,11 +25,6 @@ class FloatCommandArgument extends CommandArgument<Float> {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String[] getAutoCompletes() {
-        return new String[0];
     }
     
     @Override
@@ -48,9 +47,23 @@ class FloatCommandArgument extends CommandArgument<Float> {
         }
 
         try {
-            return Float.parseFloat(wordWriter.toString());
+            var value = Float.parseFloat(wordWriter.toString());
+            if (value < minimum && value > maximum) {
+                throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_MIN_MAX_ERROR);
+            }
+            return value;
         } catch (NumberFormatException e) {
             throw new ArgumentFormatException(MessageKey.INVALID_ARGUMENT_NOT_A_FLOAT);
         }
+    }
+
+    @Override
+    public Float getMin() {
+        return minimum;
+    }
+
+    @Override
+    public Float getMax() {
+        return maximum;
     }
 }
