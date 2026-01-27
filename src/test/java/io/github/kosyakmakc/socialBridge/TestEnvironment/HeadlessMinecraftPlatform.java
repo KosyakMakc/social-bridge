@@ -60,7 +60,7 @@ public class HeadlessMinecraftPlatform implements IMinecraftPlatform {
 
     @Override
     public CompletableFuture<String> get(IModuleBase module, String parameter, String defaultValue, ITransaction transaction) {
-        return get(module, parameter, defaultValue, transaction);
+        return get(module.getId(), parameter, defaultValue, transaction);
     }
 
     @Override
