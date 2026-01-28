@@ -1,5 +1,5 @@
 package io.github.kosyakmakc.socialBridge.SocialPlatforms;
 
-public interface ISocialAttachmentReply {
+public interface ISocialAttachmentReply extends ISocialAttachment {
     ISocialMessage getReply();
 }

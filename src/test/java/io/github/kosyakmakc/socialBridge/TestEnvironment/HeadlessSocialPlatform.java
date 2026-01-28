@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import io.github.kosyakmakc.socialBridge.ISocialBridge;
 import io.github.kosyakmakc.socialBridge.ITransaction;
@@ -51,9 +52,10 @@ public class HeadlessSocialPlatform implements ISocialPlatform {
     }
 
     @Override
-    public CompletableFuture<Boolean> sendMessage(SocialUser telegramUser, String message,
-            HashMap<String, String> placeholders) {
-        return telegramUser.sendMessage(message, placeholders);
+    public CompletableFuture<Boolean> sendMessage(Identifier channelId, String message, HashMap<String, String> placeholders) {
+        // TO DO build template
+        Logger.getGlobal().info("[social message to channel: " + channelId.value().toString() + "] " + message);
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
